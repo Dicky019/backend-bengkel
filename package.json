@@ -1,0 +1,26 @@
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "bun dev",
+    "start": "vercel dev",
+    "deploy": "vercel",
+    "deploy:prod": "vercel --prod",
+    "postinstall": "prisma generate"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "prisma": "^5.7.1",
+    "vercel": "^33.0.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.1.11",
+    "@prisma/client": "^5.7.1",
+    "@upstash/redis": "^1.27.1",
+    "hono": "^3.11.12",
+    "zod": "^3.22.4"
+  }
+}
