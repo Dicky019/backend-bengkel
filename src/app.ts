@@ -1,27 +1,68 @@
 import { Hono } from "hono";
-import { env } from "hono/adapter";
-import { Env } from "./types";
-import { Redis } from "@upstash/redis";
+import { env } from "~/utils/env";
+import { logger as log } from "hono/logger";
+import { logger } from "~/utils/logger";
+import { secureHeaders } from "hono/secure-headers";
+import { get } from "./services/redis";
+import { HttpStatus } from "./utils/http-utils";
+import authRouter from "./features/auth/auth.controller";
 
-const redis = new Redis({
-  url: "https://upright-chigger-40378.upstash.io",
-  token: "********",
+
+const app = new Hono();
+
+/**
+ * Headers secure
+ * Using Hono/secure-headers
+ */
+app.use("*", secureHeaders());
+
+/**
+ * Logger middleware to log requests
+ * Using Winston Loggger
+ */
+app.use(
+  "*",
+  log((str) => {
+    logger.info(str);
+  })
+);
+
+/**
+ * Handle unknown errors
+ */
+app.onError((err, c) => {
+  logger.error({ error: err });
+  return c.json({ error: err.message }, HttpStatus.SERVER_ERROR);
 });
 
-// import {server} from ""
-
-const app = new Hono().basePath("api/");
-
-app.get("/", (c) => c.json({ message: "Hello Hono!" }));
-
-app.get("/env", (c) => {
-  const { DATABASE_URL } = env<Env>(c);
-  return c.json({ message: DATABASE_URL });
+/**
+ * Middleware to check if data is cached in Redis
+ * If cached data exists, return it
+ * Otherwise call next() to continue request processing
+ */
+app.use("*", async (c, next) => {
+  const data = await get(c);
+  if (data) {
+    // Return cached data from Redis
+    return c.json(data);
+  }
+  // Data not cached, continue processing
+  return next();
 });
 
+/**
+ * Routes
+ */
+app.route("/auth", authRouter);
+
+/**
+ * Bun server only run in development mode
+ */
 Bun.serve({
   fetch: app.fetch,
-  port: process.env.PORT || 3000,
+  port: env.PORT || 3000,
 });
+
+
 
 export { app };
