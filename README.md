@@ -1,15 +1,49 @@
 # backend
 
-To install dependencies:
+## Instalasi
+
+Untuk menginstall dependencies:
 
 ```bash
 bun install
 ```
 
-To run:
+## Menjalankan
+
+Untuk menjalankan aplikasi:
 
 ```bash
-bun run index.ts
+bun dev
 ```
 
-This project was created using `bun init` in bun v1.0.7. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+## Database
+
+Untuk mendorong skema database ke server:
+
+```bash
+bun db:push
+```
+
+Untuk mengakses database studio:
+
+```bash
+bun db:studio
+```
+
+## Deployment
+
+Untuk melakukan deploy ke staging:
+
+```bash
+bun deploy
+```
+
+Untuk melakukan deploy ke production:
+
+```bash
+bun deploy:prod
+```
+
+## Informasi Tambahan
+
+Project ini dibuat menggunakan `bun init` di bun v1.0.7. [Bun](https://bun.sh) adalah runtime JavaScript yang cepat dan all-in-one.
