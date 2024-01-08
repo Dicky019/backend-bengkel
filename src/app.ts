@@ -6,7 +6,7 @@ import { secureHeaders } from "hono/secure-headers";
 import { get } from "./services/redis";
 import { HttpStatus } from "./utils/http-utils";
 import authRouter from "./features/auth/auth.controller";
-
+import { serve } from '@hono/node-server'
 
 const app = new Hono();
 
@@ -51,17 +51,19 @@ app.use("*", async (c, next) => {
 });
 
 /**
- * Routes
+ * Routes auth: 
+ * - /login 
+ * - /signin 
  */
 app.route("/auth", authRouter);
 
 /**
- * Bun server only run in development mode
+ * Node server only run in development mode
  */
-Bun.serve({
+serve({
   fetch: app.fetch,
-  port: env.PORT || 3000,
-});
+  port: env.PORT,
+})
 
 
 

@@ -1,7 +1,7 @@
 import * as userRepo from "~/features/user/user.repository";
 import { ILoginProps, ISigninProps } from "./auth.type";
 import { signJwtAccessToken } from "~/services/jwt";
-
+import bcrypt from "bcrypt";
 /**
  * Signs in a user.
  *
@@ -33,10 +33,9 @@ export const signin = async (signinProps: ISigninProps) => {
     throw Error("No.telephone sudah ada");
   }
 
-  const hashedPassword = await Bun.password.hash(password, {
-    algorithm: "bcrypt",
-    cost: 10,
-  });
+  const salt = await bcrypt.genSalt(10);
+
+  const hashedPassword = await bcrypt.hash(password, salt);
 
   return userRepo.createUser({
     ...userWithoutPassword,
@@ -64,11 +63,7 @@ export const login = async (loginProps: ILoginProps) => {
 
   const { password, ...userWithoutPassword } = user;
 
-  const isPasswordValid = await Bun.password.verify(
-    loginProps.password,
-    password,
-    "bcrypt"
-  );
+  const isPasswordValid = await bcrypt.compare(loginProps.password, password);
 
   if (!isPasswordValid) {
     throw Error("Password anda salah");

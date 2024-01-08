@@ -2,7 +2,7 @@
   "name": "backend",
   "version": "0.1.0",
   "scripts": {
-    "dev": "bun run --watch src/app.ts",
+    "dev": "tsx watch src/app.ts",
     "start": "vercel dev",
     "deploy": "vercel",
     "deploy:prod": "vercel --prod",
@@ -12,8 +12,8 @@
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.5",
-    "bun-types": "latest",
     "prisma": "^5.7.1",
+    "tsx": "^4.7.0",
     "vercel": "^33.0.1"
   },
   "peerDependencies": {
@@ -22,7 +22,10 @@
   "dependencies": {
     "@hono/zod-validator": "^0.1.11",
     "@prisma/client": "^5.7.1",
+    "@t3-oss/env-core": "^0.7.1",
+    "@types/bcrypt": "^5.0.2",
     "@upstash/redis": "^1.27.1",
+    "bcrypt": "^5.1.1",
     "hono": "^3.11.12",
     "jsonwebtoken": "^9.0.2",
     "winston": "^3.11.0",
