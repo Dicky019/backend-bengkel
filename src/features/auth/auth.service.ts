@@ -34,9 +34,10 @@ export const signin = async (signinProps: ISigninProps) => {
     throw Error("No.telephone sudah ada");
   }
 
-  const salt = await bcrypt.genSalt(10);
-
-  const hashedPassword = await bcrypt.hash(password, salt);
+  const hashedPassword = await Bun.password.hash(password, {
+    algorithm: "bcrypt",
+    cost: 10,
+  });
 
   return userRepo.createUser({
     ...userWithoutPassword,
@@ -64,7 +65,10 @@ export const login = async (loginProps: ILoginProps) => {
 
   const { password, ...userWithoutPassword } = user;
 
-  const isPasswordValid = await bcrypt.compare(loginProps.password, password);
+  const isPasswordValid = await Bun.password.verify(
+    loginProps.password,
+    password
+  );
 
   if (!isPasswordValid) {
     throw Error("Password anda salah");
