@@ -1,12 +1,15 @@
 import { Hono } from "hono";
-import { env } from "~/utils/env";
-import { logger as log } from "hono/logger";
-import { logger } from "~/utils/logger";
 import { secureHeaders } from "hono/secure-headers";
+import { logger as log } from "hono/logger";
+import { inspectRoutes } from "hono/dev";
+
+import { env } from "~/utils/env";
+import { logger } from "~/utils/logger";
 import { get } from "./services/redis";
 import { HttpStatus } from "./utils/http-utils";
+
 import authRouter from "./features/auth/auth.controller";
-import { serve } from '@hono/node-server'
+import userRouter from "./features/user/user.controller";
 
 const app = new Hono();
 
@@ -42,9 +45,15 @@ app.onError((err, c) => {
  */
 app.use("*", async (c, next) => {
   const data = await get(c);
+  logger.debug("Middleware to check if data is cached in Redis")
   if (data) {
+    logger.debug("Return cached data from Redis")
     // Return cached data from Redis
-    return c.json(data);
+    return c.json({
+      code: HttpStatus.OK,
+      status: "Ok",
+      data,
+    });
   }
   // Data not cached, continue processing
   return next();
@@ -56,15 +65,25 @@ app.use("*", async (c, next) => {
  * - /signin 
  */
 app.route("/auth", authRouter);
+app.route("/users", userRouter);
 
 /**
  * Node server only run in development mode
  */
-serve({
+if (process.env.NODE_ENV === "development") {
+  const routes = inspectRoutes(app)
+    .filter((v) => !v.isMiddleware)
+    .map((route) => "\n" + route.method + "\t" + route.path)
+    .join(" ");
+  // .replace(",", "");
+  logger.info(routes);
+}
+
+logger.info("server run in http://localhost:3000");
+
+Bun.serve({
   fetch: app.fetch,
   port: env.PORT,
 })
-
-
 
 export { app };

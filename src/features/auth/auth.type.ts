@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { loginSchema, signinSchema } from "./auth.schema";
+import { loginSchema } from "./auth.schema";
+import { createUserSchema } from "~/features/user/user.schema";
 
 export type ILoginProps = z.infer<typeof loginSchema>;
-export type ISigninProps = z.infer<typeof signinSchema>;
+export type ISigninProps = z.infer<typeof createUserSchema>;

@@ -1,7 +1,8 @@
 import * as userRepo from "~/features/user/user.repository";
 import { ILoginProps, ISigninProps } from "./auth.type";
-import { signJwtAccessToken } from "~/services/jwt";
-import bcrypt from "bcrypt";
+import { signJwtAccessToken, verifyJwt } from "~/services/jwt";
+import { IUser } from "../user/user.type";
+
 /**
  * Signs in a user.
  *
@@ -72,4 +73,23 @@ export const login = async (loginProps: ILoginProps) => {
   const token = signJwtAccessToken(userWithoutPassword);
 
   return { userWithoutPassword, token };
+};
+
+/**
+ * Gets the current authenticated user from a JWT token.
+ *
+ * Takes a JWT token, verifies it, and returns the payload
+ * as the current user if valid.
+ *
+ * Throws errors if no token provided or invalid token.
+ */
+export const currentUser = (token: string | undefined) => {
+  if (!token) {
+    throw Error("Anda belum login");
+  }
+  const user = verifyJwt(token);
+  if (!user) {
+    throw Error("Ada yang salah");
+  }
+  return user as IUser;
 };
