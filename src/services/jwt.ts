@@ -1,20 +1,23 @@
-import jwt, { type JwtPayload, VerifyOptions, SignOptions } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { env } from "~/utils/env";
 
-const DEFAULT_SIGN_OPTION: SignOptions = {
+const DEFAULT_SIGN_OPTION: jwt.SignOptions = {
   expiresIn: 3 * 24 * 60 * 60, // 12 days
 };
 
 declare module "jsonwebtoken" {
   interface JwtPayload {
     id: string;
+    name: string;
     email: string;
+    nomorTelephone: string;
+    role: string;
   }
 }
 
 export function signJwtAccessToken(
-  payload: JwtPayload,
-  options: SignOptions = DEFAULT_SIGN_OPTION
+  payload: jwt.JwtPayload,
+  options: jwt.SignOptions = DEFAULT_SIGN_OPTION
 ) {
   const secret_key = env.AUTH_SECRET;
   const token = jwt.sign(payload, secret_key ?? "", options);
@@ -25,7 +28,7 @@ export function verifyJwt(token: string) {
   try {
     const secret_key = env.AUTH_SECRET;
     const decoded = jwt.verify(token, secret_key ?? "");
-    return decoded as JwtPayload;
+    return decoded as jwt.JwtPayload;
   } catch (error) {
     console.log(error);
     return null;

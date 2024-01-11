@@ -7,13 +7,15 @@ const redis = new Redis({
   token: env.REDIS_TOKEN,
 });
 
-export const set = (c: Context, value: any) => {
+export const setCache = (c: Context, value: any) => {
   const data = JSON.stringify(value);
-  return redis.set(c.req.path, data, {
-    ex: 60 * 2, // 2 minutes,
-  });
+  return redis.set(c.req.url, data);
+};
+
+export const removeCache = (c: Context) => {
+  return redis.del(c.req.path);
 };
 
 export const get = (c: Context) => {
-  return redis.get<JSON>(c.req.path);
+  return redis.get<JSON>(c.req.url);
 };

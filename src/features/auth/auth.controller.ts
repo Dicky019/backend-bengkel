@@ -1,65 +1,26 @@
 import { Hono } from "hono";
-import { setCookie } from "hono/cookie";
+import { getCookie, setCookie } from "hono/cookie";
 
 import { HttpStatus } from "~/utils/http-utils";
-import { formatErrorsFromZod } from "~/utils/format-errors";
 import { logger } from "~/utils/logger";
 
 import * as authService from "./auth.service";
-import { loginSchema, signinSchema } from "./auth.schema";
+import { loginSchema } from "./auth.schema";
+import { createUserSchema } from "~/features/user/user.schema";
+import { validatorSchema } from "~/utils/validator";
 
 const authRouter = new Hono();
 
 /**
- * Login handler
- *
- * @body {
- *   "email": string,
- *   "password": string
- * }
- *
- * @error {
- *   "code": 400,
- *   "status": "Bad Request",
- *   "errors": string[]
- * }
- *
- * @succses {
- * "code": 200,
- * "status": "Ok",
- * "data": {
- *    "user": {
- *      "id": string,
- *      "name": string,
- *      "email": string,
- *      "nomorTelephone": string,
- *      "role": "pengendara" | "motir" | "admin"
- *    },
- *    "token": string,
- *  }
- * }
+ * @route Post /auth/my
+ * @desc Login user
+ * @access Public
  */
-authRouter.post("/login", async (c) => {
-  const req = await c.req.json();
-  const reqParse = loginSchema.safeParse(req);
-
-  if (!reqParse.success) {
-    const errors = formatErrorsFromZod(reqParse.error);
-
-    return c.json(
-      {
-        code: HttpStatus.BAD_REQUEST,
-        status: "Bad Request",
-        errors: errors,
-      },
-      HttpStatus.BAD_REQUEST
-    );
-  }
+authRouter.post("/login", validatorSchema("json", loginSchema), async (c) => {
+  const login = c.req.valid("json");
 
   try {
-    const { userWithoutPassword: user, token } = await authService.login(
-      reqParse.data
-    );
+    const { userWithoutPassword: user, token } = await authService.login(login);
     setCookie(c, "token", token, {
       maxAge: 3 * 24 * 60 * 60,
     });
@@ -87,71 +48,60 @@ authRouter.post("/login", async (c) => {
 });
 
 /**
- * Sign in handler
- *
- * @body {
- *   "name": string,
- *   "email": string,
- *   "password": string,
- *   "nomorTelephone": string,
- *   "role": "pengendara" | "motir" | "admin"
- * }
- *
- * @error {
- *   "code": 400,
- *   "status": "Bad Request",
- *   "errors": string[]
- * }
- *
- * @succses {
- * "code": 200,
- * "status": "Ok",
- * "data": {
- *     "id": string,
- *     "name": string,
- *     "email": string,
- *     "password": string,
- *     "nomorTelephone": string,
- *     "role": "pengendara" | "motir" | "admin"
- *   },
- * }
+ * @route Post /auth/my
+ * @desc Sign-in user
+ * @access Public
  */
-authRouter.post("/signin", async (c) => {
-  const req = await c.req.json();
-  const reqParse = signinSchema.safeParse(req);
-
-  if (!reqParse.success) {
-    const errors = formatErrorsFromZod(reqParse.error);
-
-    return c.json(
-      {
-        code: HttpStatus.BAD_REQUEST,
-        status: "Bad Request",
-        errors: errors,
-      },
-      HttpStatus.BAD_REQUEST
-    );
+authRouter.post(
+  "/signin",
+  validatorSchema("json", createUserSchema),
+  async (c) => {
+    const user = c.req.valid("json");
+    try {
+      const newUser = await authService.signin(user);
+      return c.json({
+        code: HttpStatus.OK,
+        status: "Ok",
+        data: newUser,
+      });
+    } catch (error) {
+      const { message } = error as { message: string };
+      return c.json(
+        {
+          code: HttpStatus.BAD_REQUEST,
+          status: "Bad Request",
+          errors: [message],
+        },
+        HttpStatus.BAD_REQUEST
+      );
+    }
   }
+);
+
+/**
+ * @route GET /auth/my
+ * @desc Get current user
+ * @access Private
+ */
+authRouter.get("/my", async (c) => {
+  const token = getCookie(c, "token");
 
   try {
-    const newUser = await authService.signin({
-      ...reqParse.data,
-      role: "pengendara",
-    });
+    const user = authService.currentUser(token);
     return c.json({
       code: HttpStatus.OK,
       status: "Ok",
-      data: newUser,
+      data: user,
     });
   } catch (error) {
     const { message } = error as { message: string };
     return c.json(
       {
-        code: HttpStatus.BAD_REQUEST,
-        status: "Bad Request",
+        code: HttpStatus.UNAUTHORIZED,
+        status: "Unauthorized",
         errors: [message],
       },
-      HttpStatus.BAD_REQUEST
+      HttpStatus.UNAUTHORIZED
     );
   }
 });

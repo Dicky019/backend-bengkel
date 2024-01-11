@@ -28,6 +28,12 @@ export const getUsers = (userFindManyArgs: TUserFindManyArgs = undefined) => {
   return users;
 };
 
+export const getUsersCount = () => {
+  const usersCount = prisma.user.count();
+
+  return usersCount;
+};
+
 /**
  * Retrieves a single user from the database based on the provided unique identifier.
  *
