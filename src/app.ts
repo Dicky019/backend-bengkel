@@ -39,27 +39,6 @@ app.onError((err, c) => {
 });
 
 /**
- * Middleware to check if data is cached in Redis
- * If cached data exists, return it
- * Otherwise call next() to continue request processing
- */
-app.use("*", async (c, next) => {
-  const data = await get(c);
-  logger.debug("Middleware to check if data is cached in Redis")
-  if (data) {
-    logger.debug("Return cached data from Redis")
-    // Return cached data from Redis
-    return c.json({
-      code: HttpStatus.OK,
-      status: "Ok",
-      data,
-    });
-  }
-  // Data not cached, continue processing
-  return next();
-});
-
-/**
  * Routes auth: 
  * - /login 
  * - /signin 

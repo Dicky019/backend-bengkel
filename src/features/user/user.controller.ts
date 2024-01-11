@@ -7,9 +7,30 @@ import * as userService from "./user.service";
 import { updateUserSchema } from "./user.schema";
 import { validatorSchema } from "~/utils/validator";
 import { idSchema, queryPageSchema } from "~/schemas";
-import { setCache, removeCache } from "~/services/redis";
+import { setCache, removeCache, get } from "~/services/redis";
 
 const userRouter = new Hono();
+
+/**
+ * Middleware to check if data is cached in Redis
+ * If cached data exists, return it
+ * Otherwise call next() to continue request processing
+ */
+userRouter.use("*", async (c, next) => {
+  const data = await get(c);
+  logger.debug("Middleware to check if data is cached in Redis");
+  if (data) {
+    logger.debug("Return cached data from Redis");
+    // Return cached data from Redis
+    return c.json({
+      code: HttpStatus.OK,
+      status: "Ok",
+      data,
+    });
+  }
+  // Data not cached, continue processing
+  return next();
+});
 
 // userRouter.use(async (_, next) => {
 //   console.log("middleware 1 start");
