@@ -55,7 +55,7 @@ describe("GET BY ID", () => {
 
   test("GET:REDDIS /users/id --> get user", getUserById);
 
-  test("GET /users/id --> get user", async () => {
+  test("GET /users/id --> get user error : id not fount", async () => {
     const res = await testClient(getUserByIdRouter)[":id"].$get({
       param: {
         id: "863e4643-dc96-4f72-9efb-fdddbf016e5f",
