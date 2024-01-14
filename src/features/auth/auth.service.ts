@@ -1,7 +1,10 @@
 import * as userRepo from "~/features/user/user.repository";
-import { ILoginProps, ISigninProps } from "./auth.type";
+import { TLoginProps, TSigninProps } from "./auth.type";
 import { signJwtAccessToken, verifyJwt } from "~/services/jwt";
-import { IUser } from "../user/user.type";
+import { TUser } from "../user/user.type";
+import { HTTPException } from "hono/http-exception";
+import { HttpStatus } from "~/utils/http-utils";
+import { validateCreateUser } from "../user/user.service";
 
 /**
  * Signs in a user.
@@ -11,28 +14,10 @@ import { IUser } from "../user/user.type";
  *
  * Throws errors if email or phone number already exists.
  */
-export const signin = async (signinProps: ISigninProps) => {
+export const signin = async (signinProps: TSigninProps) => {
   const { password, ...userWithoutPassword } = signinProps;
 
-  const checkEmail = await userRepo.getUserByUniq({
-    email: userWithoutPassword.email,
-  });
-
-  const checkNoTelephone = await userRepo.getUserByUniq({
-    nomorTelephone: userWithoutPassword.nomorTelephone,
-  });
-
-  if (checkEmail && checkNoTelephone) {
-    throw Error("Email dan No.telephone sudah ada");
-  }
-
-  if (checkEmail) {
-    throw Error("Email sudah ada");
-  }
-
-  if (checkNoTelephone) {
-    throw Error("No.telephone sudah ada");
-  }
+  await validateCreateUser(userWithoutPassword);
 
   const hashedPassword = await Bun.password.hash(password, {
     algorithm: "bcrypt",
@@ -54,13 +39,21 @@ export const signin = async (signinProps: ISigninProps) => {
  *
  * Throws errors if user not found or invalid password.
  */
-export const login = async (loginProps: ILoginProps) => {
+export const login = async (loginProps: TLoginProps) => {
   const user = await userRepo.getUserByUniq({
     email: loginProps.email,
   });
 
   if (!user) {
-    throw Error("Email anda salah");
+    throw new HTTPException(HttpStatus.NOT_FOUND, {
+      message: "Email anda salah",
+    });
+  }
+
+  if (!user.password) {
+    throw new HTTPException(HttpStatus.CONFLICT, {
+      message: "Password anda belum diset",
+    });
   }
 
   const { password, ...userWithoutPassword } = user;
@@ -71,7 +64,9 @@ export const login = async (loginProps: ILoginProps) => {
   );
 
   if (!isPasswordValid) {
-    throw Error("Password anda salah");
+    throw new HTTPException(HttpStatus.BAD_REQUEST, {
+      message: "Password anda salah",
+    });
   }
 
   const token = signJwtAccessToken(userWithoutPassword);
@@ -87,13 +82,27 @@ export const login = async (loginProps: ILoginProps) => {
  *
  * Throws errors if no token provided or invalid token.
  */
-export const currentUser = (token: string | undefined) => {
+export const currentUser = async (token: string | undefined) => {
   if (!token) {
-    throw Error("Anda belum login");
+    throw new HTTPException(HttpStatus.UNAUTHORIZED, {
+      message: "Anda belum login",
+    });
   }
-  const user = verifyJwt(token);
+  const jwt = verifyJwt(token);
+
+  if (!jwt) {
+    throw new HTTPException(HttpStatus.CONFLICT, {
+      message: "User ini tidak ada",
+    });
+  }
+
+  const user = await userRepo.getUserByUniq({ id: jwt.id, email: jwt.email });
+
   if (!user) {
-    throw Error("Ada yang salah");
+    throw new HTTPException(HttpStatus.NOT_FOUND, {
+      message: "User ini tidak ada",
+    });
   }
-  return user as IUser;
+
+  return user as TUser;
 };

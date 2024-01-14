@@ -1,8 +1,8 @@
 import { zValidator } from "@hono/zod-validator";
 import type { ValidationTargets } from "hono/types";
 import { type ZodRawShape, z } from "zod";
-import { formatErrorsFromZod } from "./format-errors";
 import { HttpStatus } from "./http-utils";
+import { logger } from "./logger";
 
 export const validatorSchema = <
   T extends ZodRawShape,
@@ -13,13 +13,13 @@ export const validatorSchema = <
 ) =>
   zValidator(target, schema, (result, c) => {
     if (!result.success) {
-      const errors = formatErrorsFromZod(result.error);
+      logger.error(result.error.formErrors);
 
       return c.json(
         {
           code: HttpStatus.BAD_REQUEST,
           status: "Bad Request",
-          errors: errors,
+          errors: result.error.formErrors.fieldErrors,
         },
         HttpStatus.BAD_REQUEST
       );

@@ -13,17 +13,13 @@ import { idSchema } from "~/schemas";
  * - role: The user's role as a Role enum : pengendara, motir, admin
  */
 export const createUserSchema = z.object({
-  name: z.string().min(1, "Nama harus diisi").min(3, "Nama minimal 3 karakter"),
+  name: z.string().min(3, "Nama minimal 3 karakter").min(0, "Nama harus diisi"),
   email: z.string().min(1, "Email harus diisi").email("Email tidak valid"),
-  password: z
-    .string()
-    .min(1, "Password harus diisi")
-    .min(8, "Password minimal 8 karakter"),
   nomorTelephone: z
     .string()
     .min(1, "No.telephone harus diisi")
     .regex(/^\+(\d{2})\s(\d{3})-(\d{3})-(\d{4})$/, "No.telephone tidak valid"),
-  role: z.nativeEnum(Role),
+  role: z.enum(["pengendara", "motir"]),
 });
 
 /**
@@ -39,8 +35,5 @@ export const updateUserSchema = z.object({
     .string()
     .regex(/^\+(\d{2})\s(\d{3})-(\d{3})-(\d{4})$/, "No.telephone tidak valid")
     .optional(),
-  role: z.nativeEnum(Role).optional(),
+  role: z.enum(["pengendara", "motir"]).optional(),
 });
-
-
-

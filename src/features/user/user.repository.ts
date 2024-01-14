@@ -12,6 +12,8 @@ const selectUserWithoutPass = {
   name: true,
   nomorTelephone: true,
   role: true,
+  createdAt: true,
+  updatedAt: true,
 };
 
 /**
@@ -22,6 +24,9 @@ const selectUserWithoutPass = {
 export const getUsers = (userFindManyArgs: TUserFindManyArgs = undefined) => {
   const users = prisma.user.findMany({
     select: selectUserWithoutPass,
+    orderBy: {
+      email: "asc",
+    },
     ...userFindManyArgs,
   });
 

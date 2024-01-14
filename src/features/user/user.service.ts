@@ -1,13 +1,21 @@
 import * as userRepo from "~/features/user/user.repository";
-import { TUserUpdateInput, TUserWhereUniqueInput } from "./user.type";
-import { IQueryPage } from "~/types";
+import {
+  TCreateUser,
+  TUpdateUser,
+  TUserCreateInput,
+  TUserUpdateInput,
+  TUserWhereUniqueInput,
+} from "./user.type";
+import { TQueryPage } from "~/types";
 import { pagination } from "~/utils/pagination";
+import { HTTPException } from "hono/http-exception";
+import { HttpStatus } from "~/utils/http-utils";
 
 /**
  * Gets users based on optional find arguments.
  * Delegates to userRepo.getUsers.
  */
-export const getUsers = async ({ page, perPage }: IQueryPage) => {
+export const getUsers = async ({ page, perPage }: TQueryPage) => {
   const usersPagination = await pagination({
     page,
     perPage,
@@ -28,9 +36,46 @@ export const getUsers = async ({ page, perPage }: IQueryPage) => {
 export const getUser = async (where: TUserWhereUniqueInput) => {
   const user = await userRepo.getUserByUniq(where);
   if (!user) {
-    throw Error("User ini tidak ada");
+    // throw Error("User ini tidak ada");
+    throw new HTTPException(HttpStatus.NOT_FOUND, {
+      message: "User ini tidak ada",
+    });
   }
   return user;
+};
+
+export const validateCreateUser = async (create: TCreateUser) => {
+  const [checkEmail, checkNoTelephone] = await Promise.all([
+    userRepo.getUserByUniq({
+      email: create.email,
+    }),
+    userRepo.getUserByUniq({
+      nomorTelephone: create.nomorTelephone,
+    }),
+  ]);
+
+  if (checkEmail && checkNoTelephone) {
+    throw new HTTPException(HttpStatus.BAD_REQUEST, {
+      message: "Email dan No.telephone sudah ada",
+    });
+  }
+
+  if (checkEmail) {
+    throw new HTTPException(HttpStatus.BAD_REQUEST, {
+      message: "Email sudah ada",
+    });
+  }
+
+  if (checkNoTelephone) {
+    throw new HTTPException(HttpStatus.BAD_REQUEST, {
+      message: "No.telephone sudah ada",
+    });
+  }
+};
+
+export const createUser = async (create: TCreateUser) => {
+  await validateCreateUser(create);
+  return userRepo.createUser(create);
 };
 
 /**
@@ -39,7 +84,7 @@ export const getUser = async (where: TUserWhereUniqueInput) => {
  * Gets the existing user by ID first to validate it exists.
  * Then delegates to the userRepo to perform the update in the database.
  */
-export const updateUser = async (updateUserProps: TUserUpdateInput) => {
+export const updateUser = async (updateUserProps: TUpdateUser) => {
   await getUser({ id: updateUserProps.id });
   return userRepo.updateUser(updateUserProps);
 };
