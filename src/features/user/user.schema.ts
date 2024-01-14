@@ -1,6 +1,4 @@
-import { Role } from "@prisma/client";
 import { z } from "zod";
-import { idSchema } from "~/schemas";
 
 /**
  * Defines the schema for the user object.

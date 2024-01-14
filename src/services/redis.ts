@@ -8,13 +8,13 @@ const redis = new Redis({
 });
 
 export const setCache = (c: Context, value: any) => {
-  return redis.json.set(c.req.path,"$", value);
+  return redis.set(c.req.url, value);
 };
 
 export const removeCache = (c: Context) => {
-  return redis.json.forget(c.req.path);
+  return redis.del(c.req.url);
 };
 
 export const get = (c: Context) => {
-  return redis.json.get(c.req.path);
+  return redis.get(c.req.url);
 };

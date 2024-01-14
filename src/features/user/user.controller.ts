@@ -4,7 +4,7 @@ import { HttpStatus } from "~/utils/http-utils";
 import { logger } from "~/utils/logger";
 
 import * as userService from "./user.service";
-import { updateUserSchema } from "./user.schema";
+import { createUserSchema, updateUserSchema } from "./user.schema";
 import { validatorSchema } from "~/utils/validator";
 import { idSchema, queryPageSchema } from "~/schemas";
 import { setCache, removeCache, get } from "~/services/redis";
@@ -14,11 +14,11 @@ const userRouter = new Hono();
 const cache = async (c: Context, next: Next) => {
   const data = await get(c);
 
-  logger.info({ data });
+  logger.debug(data);
 
-  logger.debug("Middleware to check if data is cached in Redis");
+  logger.info("Middleware to check if data is cached in Redis");
   if (data) {
-    logger.debug("Return cached data from Redis");
+    logger.info("Return cached data from Redis");
     // Return cached data from Redis
     return c.json({
       code: HttpStatus.OK,
@@ -47,12 +47,14 @@ userRouter.use("*", async (c, next) => {
   return next();
 });
 
-userRouter.get("/", async (c) => {
+export const getUsersRouter = userRouter.get("/", async (c) => {
   const query = c.req.query();
 
   const queryPage = queryPageSchema.parse(query);
   const users = await userService.getUsers(queryPage);
   await setCache(c, users);
+
+  logger.debug(users);
 
   return c.json({
     code: HttpStatus.OK,
@@ -61,21 +63,42 @@ userRouter.get("/", async (c) => {
   });
 });
 
-userRouter.get("/:id", validatorSchema("param", idSchema), async (c) => {
-  const { id } = c.req.valid("param");
+export const getUserByIdRouter = userRouter.get(
+  "/:id",
+  validatorSchema("param", idSchema),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const user = await userService.getUser({ id });
+    await setCache(c, { data: user });
 
-  const user = await userService.getUser({ id });
+    logger.debug(user);
 
-  await setCache(c, { data: user });
+    return c.json({
+      code: HttpStatus.OK,
+      status: "Ok",
+      data: user,
+    });
+  }
+);
 
-  return c.json({
-    code: HttpStatus.OK,
-    status: "Ok",
-    data: user,
-  });
-});
+export const createUserRouter = userRouter.post(
+  "/",
+  validatorSchema("json", createUserSchema),
+  async (c) => {
+    const data = c.req.valid("json");
+    const user = await userService.createUser(data);
 
-userRouter.put(
+    logger.debug(user);
+
+    return c.json({
+      code: HttpStatus.OK,
+      status: "Ok",
+      data: user,
+    });
+  }
+);
+
+export const updateUserRouter = userRouter.put(
   "/:id",
   validatorSchema("json", updateUserSchema),
   validatorSchema("param", idSchema),
@@ -87,6 +110,8 @@ userRouter.put(
       ...userWithoutId,
     });
 
+    logger.debug(user);
+
     return c.json({
       code: HttpStatus.OK,
       status: "Ok",
@@ -95,16 +120,22 @@ userRouter.put(
   }
 );
 
-userRouter.delete("/:id", validatorSchema("param", idSchema), async (c) => {
-  const { id } = c.req.valid("param");
+export const deleteUserRouter = userRouter.delete(
+  "/:id",
+  validatorSchema("param", idSchema),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const user = await userService.deleteUser({ id });
+    logger.debug(user);
 
-  const user = await userService.deleteUser({ id });
+    return c.json({
+      code: HttpStatus.OK,
+      status: "Ok",
+      data: user,
+    });
+  }
+);
 
-  return c.json({
-    code: HttpStatus.OK,
-    status: "Ok",
-    data: user,
-  });
-});
+export const ts = userRouter;
 
 export default userRouter;

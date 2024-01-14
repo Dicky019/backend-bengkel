@@ -12,6 +12,7 @@ const selectUserWithoutPass = {
   name: true,
   nomorTelephone: true,
   role: true,
+  image: true,
   createdAt: true,
   updatedAt: true,
 };
