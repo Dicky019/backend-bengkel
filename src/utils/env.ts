@@ -11,6 +11,7 @@ export const env = createEnv({
     REDIS_URL: z.string().url(),
     // KINDE AUTH
     AUTH_SECRET : z.string().min(16),
+    TOKEN_ADMIN : z.string().min(16),
   },
   clientPrefix: "PUBLIC_",
   client: {

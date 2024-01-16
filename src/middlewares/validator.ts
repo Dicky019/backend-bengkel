@@ -1,10 +1,11 @@
-import { zValidator } from "@hono/zod-validator";
 import type { ValidationTargets } from "hono/types";
 import { type ZodRawShape, z } from "zod";
-import { HttpStatus } from "./http-utils";
-import { logger } from "./logger";
+import { zValidator } from "@hono/zod-validator";
 
-export const validatorSchema = <
+import { HttpStatus } from "~/utils/http-utils";
+import { logger } from "~/utils/logger";
+
+const validatorSchemaMiddleware = <
   T extends ZodRawShape,
   Target extends keyof ValidationTargets
 >(
@@ -25,3 +26,5 @@ export const validatorSchema = <
       );
     }
   });
+
+export default validatorSchemaMiddleware;

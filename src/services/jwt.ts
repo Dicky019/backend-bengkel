@@ -1,3 +1,4 @@
+import { $Enums } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { env } from "~/utils/env";
 
@@ -10,8 +11,9 @@ declare module "jsonwebtoken" {
     id: string;
     name: string;
     email: string;
+    image: string | null;
     nomorTelephone: string;
-    role: string;
+    role: $Enums.Role;
   }
 }
 

@@ -23,14 +23,14 @@ const fakerUsers = (l: number) =>
         email: faker.internet.email(),
         name: faker.person.fullName(),
         nomorTelephone: numberPhone,
-        role: role,
+        role: "admin",
         password: hashedPassword,
       } as const;
     })
   );
 
 const main = async () => {
-  const users = await fakerUsers(10).then((users) => {
+  const users = await fakerUsers(1).then((users) => {
     return prisma.user.createMany({
       data: users,
     });

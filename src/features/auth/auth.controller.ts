@@ -5,7 +5,8 @@ import { HttpStatus } from "~/utils/http-utils";
 
 import * as authService from "./auth.service";
 import { loginSchema, signInSchema } from "./auth.schema";
-import { validatorSchema } from "~/utils/validator";
+import validatorSchemaMiddleware from "~/middlewares/validator";
+import { authMiddleware } from "~/middlewares/auth";
 
 const authRouter = new Hono();
 
@@ -14,48 +15,56 @@ const authRouter = new Hono();
  * @desc Login user
  * @access Public
  */
-authRouter.post("/login", validatorSchema("json", loginSchema), async (c) => {
-  const login = c.req.valid("json");
+authRouter.post(
+  "/login",
+  validatorSchemaMiddleware("json", loginSchema),
+  async (c) => {
+    const login = c.req.valid("json");
 
-  const { userWithoutPassword: user, token } = await authService.login(login);
-  setCookie(c, "token", token, {
-    maxAge: 3 * 24 * 60 * 60,
-  });
+    const { userWithoutPassword: user, token } = await authService.login(login);
+    setCookie(c, "token", token, {
+      maxAge: 3 * 24 * 60 * 60,
+    });
 
-  return c.json({
-    code: HttpStatus.OK,
-    status: "Ok",
-    data: {
-      user,
-      token,
-    },
-  });
-});
+    return c.json({
+      code: HttpStatus.OK,
+      status: "Ok",
+      data: {
+        user,
+        token,
+      },
+    });
+  }
+);
 
 /**
  * @route Post /auth/my
  * @desc Sign-in user
  * @access Public
  */
-authRouter.post("/signin", validatorSchema("json", signInSchema), async (c) => {
-  const user = c.req.valid("json");
-  const newUser = await authService.signin(user);
-  return c.json({
-    code: HttpStatus.OK,
-    status: "Ok",
-    data: newUser,
-  });
-});
+authRouter.post(
+  "/signin",
+  validatorSchemaMiddleware("json", signInSchema),
+  async (c) => {
+    const user = c.req.valid("json");
+    const newUser = await authService.signin(user);
+    return c.json({
+      code: HttpStatus.OK,
+      status: "Ok",
+      data: newUser,
+    });
+  }
+);
 
 /**
  * @route GET /auth/my
  * @desc Get current user
  * @access Private
  */
-authRouter.get("/my", async (c) => {
-  const token = getCookie(c, "token");
+authRouter.get("/my", authMiddleware, async (c) => {
+  const userData = c.var.userData;
 
-  const user = await authService.currentUser(token);
+  const user = await authService.currentUser(userData);
   return c.json({
     code: HttpStatus.OK,
     status: "Ok",

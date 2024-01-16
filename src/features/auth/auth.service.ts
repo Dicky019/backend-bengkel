@@ -82,21 +82,14 @@ export const login = async (loginProps: TLoginProps) => {
  *
  * Throws errors if no token provided or invalid token.
  */
-export const currentUser = async (token: string | undefined) => {
-  if (!token) {
-    throw new HTTPException(HttpStatus.UNAUTHORIZED, {
-      message: "Anda belum login",
-    });
-  }
-  const jwt = verifyJwt(token);
-
-  if (!jwt) {
-    throw new HTTPException(HttpStatus.CONFLICT, {
-      message: "User ini tidak ada",
-    });
-  }
-
-  const user = await userRepo.getUserByUniq({ id: jwt.id, email: jwt.email });
+export const currentUser = async ({
+  id,
+  email,
+}: {
+  id: string;
+  email: string;
+}) => {
+  const user = await userRepo.getUserByUniq({ id, email });
 
   if (!user) {
     throw new HTTPException(HttpStatus.NOT_FOUND, {
