@@ -8,24 +8,22 @@ import { idSchema } from "~/schemas";
  * Type alias for Prisma.UserWhereUniqueInput.
  * Used for querying a single user record by a unique identifier.
  */
-export type TUserWhereUniqueInput = Prisma.UserWhereUniqueInput;
+export type TWhereUniqueUser = Prisma.UserWhereUniqueInput;
 
 /**
  * Type for UserFindManyArgs from Prisma Client.
  * Allows passing undefined to find all users.
  */
 
-export type TUserFindManyArgs = Prisma.UserFindManyArgs | undefined;
+export type TFindManyUser = Prisma.UserFindManyArgs | undefined;
 
 /**
  * Defines the TUserCreateInput type by omitting the "id" field from
  * Prisma.UserCreateInput, since the id should be auto-generated rather
  * than set during user creation.
  */
-export type TUserCreateInput = Omit<
-  Prisma.UserCreateInput,
-  "id" | "updatedAt" | "createdAt"
->;
+
+export type TCreateUser = z.infer<typeof createUserSchema>;
 
 /**
  * Defines the shape of the TUserUpdateInput type, which is the
@@ -35,18 +33,14 @@ export type TUserCreateInput = Omit<
  * that should not be updated, and adds back an "id" field marked
  * as required.
  */
-export type TUserUpdateInput = Omit<
-  Prisma.UserUpdateInput,
-  "id" | "updatedAt" | "createdAt"
-> & {
-  id: string;
-};
+
+export type TUpdateUser = z.infer<typeof idSchema & typeof updateUserSchema>;
 
 /**
  * Omits the `password` property from the `User` type.
  * This creates a type that represents a `User` without the sensitive `password` field.
  */
+
 export type TUser = Omit<User, "password">;
 
-export type TCreateUser = z.infer<typeof createUserSchema>;
-export type TUpdateUser = z.infer<typeof idSchema & typeof updateUserSchema>;
+

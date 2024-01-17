@@ -1,9 +1,9 @@
 import { prisma } from "~/db";
 import type {
-  TUserWhereUniqueInput,
-  TUserFindManyArgs,
-  TUserCreateInput,
-  TUserUpdateInput,
+  TWhereUniqueUser,
+  TFindManyUser,
+  TCreateUser,
+  TUpdateUser,
 } from "./user.type";
 
 const selectUserWithoutPass = {
@@ -22,7 +22,7 @@ const selectUserWithoutPass = {
  *
  * @param userFindManyArgs - Optional filtering and selection criteria to apply to the query.
  */
-export const getUsers = (userFindManyArgs: TUserFindManyArgs = undefined) => {
+export const getUsers = (userFindManyArgs: TFindManyUser = undefined) => {
   const users = prisma.user.findMany({
     select: selectUserWithoutPass,
     orderBy: {
@@ -45,7 +45,7 @@ export const getUsersCount = () => {
  *
  * @param where - The unique identifier to search for the user by.
  */
-export const getUserByUniq = (where: TUserWhereUniqueInput) => {
+export const getUserByUniq = (where: TWhereUniqueUser) => {
   const user = prisma.user.findUnique({
     where: where,
   });
@@ -58,7 +58,7 @@ export const getUserByUniq = (where: TUserWhereUniqueInput) => {
  *
  * @param data - The user data to insert into the database.
  */
-export const createUser = (data: TUserCreateInput) => {
+export const createUser = (data: TCreateUser) => {
   const user = prisma.user.create({
     data,
   });
@@ -71,7 +71,7 @@ export const createUser = (data: TUserCreateInput) => {
  *
  * @param data - The updated user data. Must include the user's id to identify the record to update.
  */
-export const updateUser = (data: TUserUpdateInput) => {
+export const updateUser = (data: TUpdateUser) => {
   const user = prisma.user.update({
     data,
     where: { id: data.id },
@@ -85,7 +85,7 @@ export const updateUser = (data: TUserUpdateInput) => {
  *
  * @param where - The unique identifier of the user record to delete.
  */
-export const deleteUser = (where: TUserWhereUniqueInput) => {
+export const deleteUser = (where: TWhereUniqueUser) => {
   const user = prisma.user.delete({
     where,
   });

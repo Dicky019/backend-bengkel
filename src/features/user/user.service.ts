@@ -2,9 +2,7 @@ import * as userRepo from "~/features/user/user.repository";
 import {
   TCreateUser,
   TUpdateUser,
-  TUserCreateInput,
-  TUserUpdateInput,
-  TUserWhereUniqueInput,
+  TWhereUniqueUser,
 } from "./user.type";
 import { TQueryPage } from "~/types";
 import { pagination } from "~/utils/pagination";
@@ -33,7 +31,7 @@ export const getUsers = async ({ page, perPage }: TQueryPage) => {
  *
  * Throws error if no user found.
  */
-export const getUser = async (where: TUserWhereUniqueInput) => {
+export const getUser = async (where: TWhereUniqueUser) => {
   const user = await userRepo.getUserByUniq(where);
   if (!user) {
     // throw Error("User ini tidak ada");
@@ -95,7 +93,7 @@ export const updateUser = async (updateUserProps: TUpdateUser) => {
  * Gets the user to delete first to validate it exists.
  * Then delegates to the userRepo to perform the deletion.
  */
-export const deleteUser = async (deleteUsersProps: TUserWhereUniqueInput) => {
+export const deleteUser = async (deleteUsersProps: TWhereUniqueUser) => {
   await getUser({ id: deleteUsersProps.id });
   return userRepo.deleteUser(deleteUsersProps);
 };
