@@ -1,7 +1,6 @@
-import { expect } from "bun:test";
-import { beforeAll, afterAll } from "bun:test";
+import { expect, beforeAll, afterAll } from "bun:test";
 import { prisma } from "~/db";
-import { logger } from "~/utils/logger";
+import logger from "~/utils/logger";
 
 beforeAll(async () => {
   // global setup
@@ -14,7 +13,6 @@ afterAll(async () => {
   await prisma.$disconnect();
   logger.info("END TEST --->>>>");
 });
-
 
 declare module "bun:test" {
   interface Expect {
@@ -32,52 +30,52 @@ expect.extend({
         pass: true,
         message: () =>
           `expected null or instance of ${this.utils.printExpected(
-            expected
+            expected,
           )}, but received ${this.utils.printReceived(received)}`,
       };
     }
-    if (expected == String) {
+    if (expected === String) {
       return {
-        pass: typeof received == "string" || received instanceof String,
+        pass: typeof received === "string" || received instanceof String,
         message: () =>
           `expected null or instance of ${this.utils.printExpected(
-            expected
+            expected,
           )}, but received ${this.utils.printReceived(received)}`,
       };
     }
-    if (expected == Number) {
+    if (expected === Number) {
       return {
-        pass: typeof received == "number" || received instanceof Number,
+        pass: typeof received === "number" || received instanceof Number,
         message: () =>
           `expected null or instance of ${this.utils.printExpected(
-            expected
+            expected,
           )}, but received ${this.utils.printReceived(received)}`,
       };
     }
-    if (expected == Function) {
+    if (expected === Function) {
       return {
-        pass: typeof received == "function" || received instanceof Function,
+        pass: typeof received === "function" || received instanceof Function,
         message: () =>
           `expected null or instance of ${this.utils.printExpected(
-            expected
+            expected,
           )}, but received ${this.utils.printReceived(received)}`,
       };
     }
-    if (expected == Object) {
+    if (expected === Object) {
       return {
-        pass: received !== null && typeof received == "object",
+        pass: received !== null && typeof received === "object",
         message: () =>
           `expected null or instance of ${this.utils.printExpected(
-            expected
+            expected,
           )}, but received ${this.utils.printReceived(received)}`,
       };
     }
-    if (expected == Boolean) {
+    if (expected === Boolean) {
       return {
-        pass: typeof received == "boolean",
+        pass: typeof received === "boolean",
         message: () =>
           `expected null or instance of ${this.utils.printExpected(
-            expected
+            expected,
           )}, but received ${this.utils.printReceived(received)}`,
       };
     }
@@ -86,9 +84,8 @@ expect.extend({
       pass: received instanceof expected,
       message: () =>
         `expected null or instance of ${this.utils.printExpected(
-          expected
+          expected,
         )}, but received ${this.utils.printReceived(received)}`,
     };
   },
 });
-

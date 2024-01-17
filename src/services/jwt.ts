@@ -1,6 +1,7 @@
 import { $Enums } from "@prisma/client";
 import jwt from "jsonwebtoken";
-import { env } from "~/utils/env";
+import env from "~/utils/env";
+import logger from "~/utils/logger";
 
 const DEFAULT_SIGN_OPTION: jwt.SignOptions = {
   expiresIn: 3 * 24 * 60 * 60, // 12 days
@@ -19,20 +20,20 @@ declare module "jsonwebtoken" {
 
 export function signJwtAccessToken(
   payload: jwt.JwtPayload,
-  options: jwt.SignOptions = DEFAULT_SIGN_OPTION
+  options: jwt.SignOptions = DEFAULT_SIGN_OPTION,
 ) {
-  const secret_key = env.AUTH_SECRET;
-  const token = jwt.sign(payload, secret_key ?? "", options);
+  const secretKey = env.AUTH_SECRET;
+  const token = jwt.sign(payload, secretKey ?? "", options);
   return token;
 }
 
 export function verifyJwt(token: string) {
   try {
-    const secret_key = env.AUTH_SECRET;
-    const decoded = jwt.verify(token, secret_key ?? "");
+    const secretKey = env.AUTH_SECRET;
+    const decoded = jwt.verify(token, secretKey ?? "");
     return decoded as jwt.JwtPayload;
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return null;
   }
 }

@@ -8,12 +8,14 @@ const format = winston.format.combine(
   winston.format.errors({ stack: true }),
   winston.format.splat(),
   winston.format.timestamp({ format: "HH:mm:ss" }),
-  winston.format.printf(({ timestamp, level, message }) => {
-    return `${timestamp} [${level}]: ${message}`;
-  })
+  winston.format.printf(
+    ({ timestamp, level, message }) => `${timestamp} [${level}]: ${message}`,
+  ),
 );
 
-export const logger = winston.createLogger({
+const logger = winston.createLogger({
   level: process.env.NODE_ENV !== "production" ? "info" : "debug",
   transports: [new winston.transports.Console({ format })],
 });
+
+export default logger;

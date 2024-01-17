@@ -1,12 +1,11 @@
 import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
 import { logger } from "~/utils/logger";
 import { userfaker } from "~/features/user/user.faker";
 
+const prisma = new PrismaClient();
+
 const userFaker = (l: number) =>
-  Array.from(Array(l).keys()).map(() => {
-    return userfaker();
-  });
+  Array.from(Array(l).keys()).map(() => userfaker());
 
 const main = async () => {
   const users = userFaker(1);
@@ -22,6 +21,7 @@ await main()
     await prisma.$disconnect();
   })
   .catch(async (e) => {
+    // eslint-disable-next-line no-console
     console.error(e);
     await prisma.$disconnect();
     process.exit(1);

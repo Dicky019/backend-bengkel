@@ -2,16 +2,17 @@ import type { ValidationTargets } from "hono/types";
 import { type ZodRawShape, z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 
-import { HttpStatus } from "~/utils/http-utils";
-import { logger } from "~/utils/logger";
+import HttpStatus from "~/utils/http-utils";
+import logger from "~/utils/logger";
 
 const validatorSchemaMiddleware = <
   T extends ZodRawShape,
-  Target extends keyof ValidationTargets
+  Target extends keyof ValidationTargets,
 >(
   target: Target,
-  schema: z.ZodObject<T>
+  schema: z.ZodObject<T>,
 ) =>
+  // eslint-disable-next-line consistent-return
   zValidator(target, schema, (result, c) => {
     if (!result.success) {
       logger.error(result.error.formErrors);
@@ -22,7 +23,7 @@ const validatorSchemaMiddleware = <
           status: "Bad Request",
           errors: result.error.formErrors.fieldErrors,
         },
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
     }
   });

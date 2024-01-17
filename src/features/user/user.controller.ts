@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 
-import { HttpStatus } from "~/utils/http-utils";
-import { logger } from "~/utils/logger";
+import HttpStatus from "~/utils/http-utils";
+import logger from "~/utils/logger";
 
 import * as userService from "./user.service";
 import { createUserSchema, updateUserSchema } from "./user.schema";
@@ -9,7 +9,7 @@ import { idSchema, queryPageSchema } from "~/schemas";
 import { setCache } from "~/services/redis";
 import validatorSchemaMiddleware from "~/middlewares/validator";
 import cacheMiddleware from "~/middlewares/cache";
-import { authMiddleware, authAdminMiddleware } from "~/middlewares/auth";
+import { authMiddleware } from "~/middlewares/auth";
 import type { TVariables } from "~/types";
 
 const userRouter = new Hono<{ Variables: TVariables }>();
@@ -39,7 +39,7 @@ export const getUsersRouter = userRouter.get(
       status: "Ok",
       ...users,
     });
-  }
+  },
 );
 
 export const getUserByIdRouter = userRouter.get(
@@ -57,7 +57,7 @@ export const getUserByIdRouter = userRouter.get(
       status: "Ok",
       data: user,
     });
-  }
+  },
 );
 
 export const createUserRouter = userRouter.post(
@@ -74,7 +74,7 @@ export const createUserRouter = userRouter.post(
       status: "Ok",
       data: user,
     });
-  }
+  },
 );
 
 export const updateUserRouter = userRouter.put(
@@ -96,7 +96,7 @@ export const updateUserRouter = userRouter.put(
       status: "Ok",
       data: user,
     });
-  }
+  },
 );
 
 export const deleteUserRouter = userRouter.delete(
@@ -112,7 +112,7 @@ export const deleteUserRouter = userRouter.delete(
       status: "Ok",
       data: user,
     });
-  }
+  },
 );
 
 export const ts = userRouter;

@@ -1,16 +1,16 @@
-import { IQueryPage } from "~/types";
+import { TQueryPage } from '~/types/index.ts';
 
-type getDataProps = { take: number; skip: number };
+type IGetDataProps = { take: number; skip: number };
 
-export const pagination = async <T>({
+ const  pagination = async <T>({
   getDataCount,
   getData,
   page: currentPage,
   perPage,
 }: {
   getDataCount: () => Promise<number>;
-  getData: (getDataProps: getDataProps) => Promise<T[]>;
-} & IQueryPage) => {
+  getData: (getDataProps: IGetDataProps) => Promise<T[]>;
+} & TQueryPage) => {
   const skip = currentPage > 0 ? perPage * (currentPage - 1) : 0;
 
   const [total, data] = await Promise.all([
@@ -36,3 +36,5 @@ export const pagination = async <T>({
 
   return { data, meta };
 };
+
+export default pagination

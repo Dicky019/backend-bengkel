@@ -4,7 +4,7 @@ import { HTTPException } from "hono/http-exception";
 
 import { verifyJwt } from "~/services/jwt";
 import type { TVariables } from "~/types";
-import { HttpStatus } from "~/utils/http-utils";
+import HttpStatus from "~/utils/http-utils";
 // import { logger } from "~/utils/logger";
 
 const authCheck = (c: Context) => {
@@ -37,13 +37,13 @@ export const authMiddleware: MiddlewareHandler<{
   const jwt = authCheck(c);
   c.set("userData", jwt);
 
-  return await next();
+  return next();
 };
 
 export const authAdminMiddleware = async (
   role: $Enums.Role,
   c: Context<{ Variables: TVariables }>,
-  next: Next
+  next: Next,
 ) => {
   if (c.var.userData.role !== role) {
     throw new HTTPException(HttpStatus.UNAUTHORIZED, {
@@ -51,5 +51,5 @@ export const authAdminMiddleware = async (
     });
   }
 
-  return await next();
+  return next();
 };

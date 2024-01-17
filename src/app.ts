@@ -1,15 +1,15 @@
 import { Hono } from "hono";
-import { secureHeaders } from "hono/secure-headers";
-import { logger as log } from "hono/logger";
 import { inspectRoutes } from "hono/dev";
+import { logger as log } from "hono/logger";
+import { secureHeaders } from "hono/secure-headers";
+import { HTTPException } from "hono/http-exception";
 
-import { env } from "~/utils/env";
-import { logger } from "~/utils/logger";
-import { HttpStatus } from "./utils/http-utils";
+import env from "~/utils/env";
+import logger from "~/utils/logger";
+import HttpStatus from "~/utils/http-utils";
 
 import authRouter from "./features/auth/auth.controller";
 import userRouter from "./features/user/user.controller";
-import { HTTPException } from "hono/http-exception";
 
 const app = new Hono();
 
@@ -27,7 +27,7 @@ app.use(
   "*",
   log((str) => {
     logger.info(str);
-  })
+  }),
 );
 
 /**
@@ -45,7 +45,7 @@ app.onError((err, c) => {
         status: "Server Error",
         errors: [message],
       },
-      err.status
+      err.status,
     );
   }
   // unnoticed error
@@ -56,7 +56,7 @@ app.onError((err, c) => {
       status: "Server Error",
       errors: [message],
     },
-    HttpStatus.SERVER_ERROR
+    HttpStatus.SERVER_ERROR,
   );
 });
 
@@ -74,7 +74,7 @@ app.route("/users", userRouter);
 if (process.env.NODE_ENV === "development") {
   const routes = inspectRoutes(app)
     .filter((v) => !v.isMiddleware)
-    .map((route) => "\n" + route.method + "\t" + route.path)
+    .map((route) => `\n${route.method}\t${route.path}`)
     .join(" ");
   // .replace(",", "");
   logger.info(routes);
@@ -87,4 +87,4 @@ Bun.serve({
   port: env.PORT,
 });
 
-export { app };
+export default app;

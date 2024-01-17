@@ -17,6 +17,7 @@ export const createUserSchema = z.object({
     .string()
     .min(1, "No.telephone harus diisi")
     .regex(/^\+(\d{2})\s(\d{3})-(\d{3})-(\d{4})$/, "No.telephone tidak valid"),
+  password: z.string().min(8, "Password minimal 8 karakter").optional(),
   role: z.enum(["pengendara", "motir"]),
 });
 

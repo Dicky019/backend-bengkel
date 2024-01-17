@@ -1,7 +1,7 @@
 import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 
-export const env = createEnv({
+ const env = createEnv({
   server: {
     // PORT SERVER
     PORT: z.string().min(3),
@@ -21,4 +21,4 @@ export const env = createEnv({
   emptyStringAsUndefined: true,
 });
 
-export type Env = typeof env;
+export default env

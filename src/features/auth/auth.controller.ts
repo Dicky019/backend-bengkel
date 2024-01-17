@@ -1,7 +1,7 @@
 import { Hono } from "hono";
-import { getCookie, setCookie } from "hono/cookie";
+import { setCookie } from "hono/cookie";
 
-import { HttpStatus } from "~/utils/http-utils";
+import HttpStatus from "~/utils/http-utils";
 
 import * as authService from "./auth.service";
 import { loginSchema, signInSchema } from "./auth.schema";
@@ -34,7 +34,7 @@ authRouter.post(
         token,
       },
     });
-  }
+  },
 );
 
 /**
@@ -53,7 +53,7 @@ authRouter.post(
       status: "Ok",
       data: newUser,
     });
-  }
+  },
 );
 
 /**
@@ -62,7 +62,7 @@ authRouter.post(
  * @access Private
  */
 authRouter.get("/my", authMiddleware, async (c) => {
-  const userData = c.var.userData;
+  const { userData } = c.var;
 
   const user = await authService.currentUser(userData);
   return c.json({

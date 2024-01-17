@@ -1,9 +1,9 @@
+import { HTTPException } from "hono/http-exception";
 import * as userRepo from "~/features/user/user.repository";
 import { TLoginProps, TSigninProps } from "./auth.type";
-import { signJwtAccessToken, verifyJwt } from "~/services/jwt";
+import { signJwtAccessToken } from "~/services/jwt";
 import { TUser } from "../user/user.type";
-import { HTTPException } from "hono/http-exception";
-import { HttpStatus } from "~/utils/http-utils";
+import HttpStatus from "~/utils/http-utils";
 import { validateCreateUser } from "../user/user.service";
 
 /**
@@ -25,8 +25,8 @@ export const signin = async (signinProps: TSigninProps) => {
   });
 
   return userRepo.createUser({
-    ...userWithoutPassword,
     password: hashedPassword,
+    ...userWithoutPassword,
   });
 };
 
@@ -60,7 +60,7 @@ export const login = async (loginProps: TLoginProps) => {
 
   const isPasswordValid = await Bun.password.verify(
     loginProps.password,
-    password
+    password,
   );
 
   if (!isPasswordValid) {

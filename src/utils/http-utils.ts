@@ -1,4 +1,4 @@
-export const HttpStatus = {
+const HttpStatus = {
   OK: 200,
   CREATED: 201,
   BAD_REQUEST: 400,
@@ -8,3 +8,5 @@ export const HttpStatus = {
   CONFLICT: 409,
   SERVER_ERROR: 500,
 } as const;
+
+export default HttpStatus;

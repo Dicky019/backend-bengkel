@@ -1,8 +1,8 @@
-import { logger } from "~/utils/logger";
+import type { MiddlewareHandler } from "hono";
+import logger from "~/utils/logger";
 
 import { removeCache, get } from "~/services/redis";
-import { HttpStatus } from "~/utils/http-utils";
-import type { MiddlewareHandler } from "hono";
+import HttpStatus from "~/utils/http-utils";
 import type { TUser } from "~/features/user/user.type";
 import type { TMiddleware } from "~/types";
 
@@ -33,10 +33,9 @@ const cacheMiddleware: MiddlewareHandler<{
   const method = c.req.method as "POST" | "PUT" | "DELETE" | "PATCH" | "GET";
 
   if (method === "GET") {
-    return await cache({ c, next });
-  } else {
-    await removeCache(c);
+    return cache({ c, next });
   }
+  await removeCache(c);
 
   return next();
 };

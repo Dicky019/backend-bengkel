@@ -1,11 +1,12 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { faker } from "@faker-js/faker";
 import { TUpdateUser } from "./user.type";
 
 export const userfaker = (
-  user: Omit<TUpdateUser, "id"> | undefined = undefined
+  user: Omit<TUpdateUser, "id"> | undefined = undefined,
 ) => {
   const numberPhone = faker.helpers.fromRegExp(
-    "+62 [0-9]{3}-[0-9]{3}-[0-9]{4}"
+    "+62 [0-9]{3}-[0-9]{3}-[0-9]{4}",
   ); // +62 813-444-5555,
 
   const role = faker.helpers.enumValue({
@@ -20,3 +21,5 @@ export const userfaker = (
     role: user?.role ?? role,
   } as const;
 };
+
+export default userfaker;

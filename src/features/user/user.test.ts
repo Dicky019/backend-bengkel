@@ -7,21 +7,76 @@ import {
   deleteUserRouter,
   createUserRouter,
 } from "./user.controller";
-import { HttpStatus } from "~/utils/http-utils";
-import { logger } from "~/utils/logger";
+import HttpStatus from "~/utils/http-utils";
 import { TUpdateUser } from "./user.type";
 import { userfaker } from "./user.faker";
-import { env } from "~/utils/env";
+import env from "~/utils/env";
 
 let id = "dd823200-9c26-43b3-b340-62968771410d";
 
 const headerToken = {
   headers: {
-    authorization: "Bearer " + env.TOKEN_ADMIN,
+    authorization: `Bearer ${env.TOKEN_ADMIN}`,
   },
 };
 
+// TODO: Fungsion for testing
+/**
+ * START Fungsion for testing
+ */
+const getAll = async () => {
+  const res = await testClient(getUsersRouter).index.$get(
+    undefined,
+    headerToken,
+  );
 
+  return res;
+};
+
+const getbyId = (userId: string) =>
+  testClient(getUserByIdRouter)[":id"].$get(
+    {
+      param: {
+        id: userId,
+      },
+    },
+    headerToken,
+  );
+
+const createUser = (user: Omit<TUpdateUser, "id">) => {
+  const res = testClient(createUserRouter).index.$post(
+    {
+      json: userfaker(user),
+    },
+    headerToken,
+  );
+  return res;
+};
+
+const updateUser = (user: TUpdateUser) =>
+  testClient(updateUserRouter)[":id"].$put(
+    {
+      json: userfaker(user),
+      param: {
+        id: user.id,
+      },
+    },
+    headerToken,
+  );
+
+const deleteUser = (userId: string) =>
+  testClient(deleteUserRouter)[":id"].$delete(
+    {
+      param: {
+        id: userId,
+      },
+    },
+    headerToken,
+  );
+
+/**
+ * END Fungsion for testing
+ */
 
 // TODO: GET USERS
 /**
@@ -31,7 +86,7 @@ describe("GET ALL", () => {
   const getAllTest = async () => {
     const res = await getAll();
     const { code, data } = await res.json();
-    logger.debug(data);
+    // logger.debug(data);
 
     expect(code).toEqual(HttpStatus.OK);
     expect(data).toEqual(
@@ -46,7 +101,7 @@ describe("GET ALL", () => {
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
         }),
-      ])
+      ]),
     );
   };
   test("GET /users --> array users", getAllTest);
@@ -74,7 +129,7 @@ describe("GET BY ID", () => {
         image: data.image,
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
-      })
+      }),
     );
   };
 
@@ -100,7 +155,7 @@ describe("POST USER", () => {
 
     const { code, data } = await res.json();
 
-    logger.debug(data);
+    // logger.debug(data);
     id = data.id;
 
     expect(code).toEqual(HttpStatus.OK);
@@ -114,7 +169,7 @@ describe("POST USER", () => {
         image: data.image,
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
-      })
+      }),
     );
   });
 
@@ -206,64 +261,3 @@ describe("DELETE USER", () => {
     expect(res.status).toEqual(HttpStatus.NOT_FOUND);
   });
 });
-
-// TODO: Fungsion for testing
-/**
- * START Fungsion for testing
- */
-const getAll = async () => {
-  const res = await testClient(getUsersRouter).index.$get(
-    undefined,
-    headerToken
-  );
-
-  return res;
-};
-
-const getbyId = (id: string) => {
-  return testClient(getUserByIdRouter)[":id"].$get(
-    {
-      param: {
-        id,
-      },
-    },
-    headerToken
-  );
-};
-
-const createUser = (user: Omit<TUpdateUser, "id">) => {
-  const res = testClient(createUserRouter).index.$post(
-    {
-      json: userfaker(user),
-    },
-    headerToken
-  );
-  return res;
-};
-
-const updateUser = (user: TUpdateUser) => {
-  return testClient(updateUserRouter)[":id"].$put(
-    {
-      json: userfaker(user),
-      param: {
-        id: user.id,
-      },
-    },
-    headerToken
-  );
-};
-
-const deleteUser = (userId: string) => {
-  return testClient(deleteUserRouter)[":id"].$delete(
-    {
-      param: {
-        id: userId,
-      },
-    },
-    headerToken
-  );
-};
-
-/**
- * END Fungsion for testing
- */

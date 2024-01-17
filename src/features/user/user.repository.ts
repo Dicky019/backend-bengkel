@@ -47,7 +47,7 @@ export const getUsersCount = () => {
  */
 export const getUserByUniq = (where: TWhereUniqueUser) => {
   const user = prisma.user.findUnique({
-    where: where,
+    where,
   });
 
   return user;

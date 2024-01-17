@@ -1,7 +1,7 @@
 import { User } from "@prisma/client";
 import { z } from "zod";
-import { Prisma } from "~/db";
-import { createUserSchema, updateUserSchema } from "./user.schema";
+import { Prisma } from "~/db/index.ts";
+import { createUserSchema, updateUserSchema } from "./user.schema.ts";
 import { idSchema } from "~/schemas";
 
 /**
@@ -42,5 +42,3 @@ export type TUpdateUser = z.infer<typeof idSchema & typeof updateUserSchema>;
  */
 
 export type TUser = Omit<User, "password">;
-
-
