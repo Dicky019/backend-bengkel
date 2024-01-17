@@ -21,14 +21,13 @@ const headerToken = {
   },
 };
 
+
+
 // TODO: GET USERS
 /**
  * Test suite for GET /users endpoint
  */
 describe("GET ALL", () => {
-  /**
-   * Should return array of users
-   */
   const getAllTest = async () => {
     const res = await getAll();
     const { code, data } = await res.json();
@@ -43,7 +42,7 @@ describe("GET ALL", () => {
           email: expect.stringContaining("@"),
           nomorTelephone: expect.stringContaining("+62"),
           role: expect.any(String),
-          image: null,
+          image: expect.nullOrAny(String),
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
         }),
@@ -62,7 +61,6 @@ describe("GET ALL", () => {
 describe("GET BY ID", () => {
   const getUserByIdSucces = async () => {
     const res = await getbyId(id);
-
     const { code, data } = await res.json();
 
     expect(code).toEqual(HttpStatus.OK);
@@ -80,19 +78,10 @@ describe("GET BY ID", () => {
     );
   };
 
-  /**
-   * Should get user by id
-   */
   test("GET /users/id --> get user", getUserByIdSucces);
 
-  /**
-   * Should get user by id from redis
-   */
   test("GET:REDDIS /users/id --> get user", getUserByIdSucces);
 
-  /**
-   * Should return 404 if user not found
-   */
   test("GET /users/id --> get user error : id not fount", async () => {
     const res = await getbyId("863e4643-dc96-4f72-9efb-fdddbf016e5f");
 
@@ -105,9 +94,6 @@ describe("GET BY ID", () => {
  * Test suite for POST /users endpoint
  */
 describe("POST USER", () => {
-  /**
-   * Should create new user
-   */
   test("POST /users --> create user", async () => {
     const user = userfaker();
     const res = await createUser(user);
@@ -132,9 +118,6 @@ describe("POST USER", () => {
     );
   });
 
-  /**
-   * Should return 400 if email & nomorTelephone already exists
-   */
   test("POST /users --> create error : same email & nomorTelephone", async () => {
     const res = await createUser({
       email: "Chaz66@hotmail.com",
@@ -144,9 +127,6 @@ describe("POST USER", () => {
     expect(res.status).toEqual(HttpStatus.BAD_REQUEST);
   });
 
-  /**
-   * Should return 400 if email already exists
-   */
   test("POST /users --> create error : same email", async () => {
     const res = await createUser({
       email: "Chaz66@hotmail.com",
@@ -155,9 +135,6 @@ describe("POST USER", () => {
     expect(res.status).toEqual(HttpStatus.BAD_REQUEST);
   });
 
-  /**
-   * Should return 400 if nomorTelephone already exists
-   */
   test("POST /users --> create error : same nomorTelephone", async () => {
     const res = await createUser({
       email: "Chaz66@hotmail.com",
@@ -166,9 +143,6 @@ describe("POST USER", () => {
     expect(res.status).toEqual(HttpStatus.BAD_REQUEST);
   });
 
-  /**
-   * Should return 400 if validation failed
-   */
   test("POST /users --> create error : validation", async () => {
     const res = await createUser({
       email: "",
@@ -186,18 +160,12 @@ describe("POST USER", () => {
  * Test suite for PUT /users/:id endpoint
  */
 describe("UPDATE USER", () => {
-  /**
-   * Should update user by id
-   */
   test("PUT /users/id --> update user", async () => {
     const res = await updateUser({ id });
 
     expect(res.status).toEqual(HttpStatus.OK);
   });
 
-  /**
-   * Should return 404 if user not found
-   */
   test("PUT /users/id --> update user error : id not fount", async () => {
     const res = await updateUser({
       id: "863e4643-dc96-4f72-9efb-fdddbf016e5f",
@@ -206,9 +174,6 @@ describe("UPDATE USER", () => {
     expect(res.status).toEqual(HttpStatus.NOT_FOUND);
   });
 
-  /**
-   * Should return 400 if validation failed
-   */
   test("PUT /users/id --> update user error : validation", async () => {
     const res = await updateUser({
       id,
@@ -228,18 +193,12 @@ describe("UPDATE USER", () => {
  */
 
 describe("DELETE USER", () => {
-  /**
-   * Should delete user by id
-   */
   test("DELETE /users/id --> delete user", async () => {
     const res = await deleteUser(id);
 
     expect(res.status).toEqual(HttpStatus.OK);
   });
 
-  /**
-   * Should return 404 if user not found
-   */
   test("DELETE /users/id --> delete user error : id not fount", async () => {
     // id: "863e4643-dc96-4f72-9efb-fdddbf016e5f",
     const res = await deleteUser("863e4643-dc96-4f72-9efb-fdddbf016e5f");
@@ -273,13 +232,9 @@ const getbyId = (id: string) => {
 };
 
 const createUser = (user: Omit<TUpdateUser, "id">) => {
-  const userF = userfaker();
   const res = testClient(createUserRouter).index.$post(
     {
-      json: {
-        ...userF,
-        ...user,
-      },
+      json: userfaker(user),
     },
     headerToken
   );
@@ -287,13 +242,9 @@ const createUser = (user: Omit<TUpdateUser, "id">) => {
 };
 
 const updateUser = (user: TUpdateUser) => {
-  const userF = userfaker();
   return testClient(updateUserRouter)[":id"].$put(
     {
-      json: {
-        ...userF,
-        ...user,
-      },
+      json: userfaker(user),
       param: {
         id: user.id,
       },

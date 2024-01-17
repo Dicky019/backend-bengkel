@@ -1,41 +1,20 @@
-import { PrismaClient, Role } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
-import { faker } from "@faker-js/faker";
 import { logger } from "~/utils/logger";
+import { userfaker } from "~/features/user/user.faker";
 
-const fakerUsers = (l: number) =>
-  Promise.all(
-    Array.from(Array(l).keys()).map(async () => {
-      const numberPhone = faker.helpers.fromRegExp(
-        "+62 [0-9]{3}-[0-9]{3}-[0-9]{4}"
-      ); // +62 813-444-5555,
-
-      const numberPhoneArray = numberPhone.split("-");
-      const password =
-        "password" + numberPhoneArray[numberPhoneArray.length - 1];
-
-      const hashedPassword = await Bun.password.hash(password, {
-        algorithm: "bcrypt",
-        cost: 10,
-      });
-      const role = faker.helpers.enumValue(Role);
-      return {
-        email: faker.internet.email(),
-        name: faker.person.fullName(),
-        nomorTelephone: numberPhone,
-        role: "admin",
-        password: hashedPassword,
-      } as const;
-    })
-  );
+const userFaker = (l: number) =>
+  Array.from(Array(l).keys()).map(() => {
+    return userfaker();
+  });
 
 const main = async () => {
-  const users = await fakerUsers(1).then((users) => {
-    return prisma.user.createMany({
-      data: users,
-    });
+  const users = userFaker(1);
+  const usersCount = await prisma.user.createMany({
+    data: users,
   });
-  logger.debug(users);
+
+  logger.debug({ users, usersCount });
 };
 
 await main()
