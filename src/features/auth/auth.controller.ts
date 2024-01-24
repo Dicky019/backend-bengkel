@@ -4,10 +4,16 @@ import { validatorSchemaMiddleware, authMiddleware } from "@core/middlewares";
 import { TVariablesUsingAuthMiddelware } from "@core/types";
 import HTTPSuccess from "@core/states/success";
 
-import * as authService from "./auth.service";
-import { loginSchema, signInSchema } from "./auth.schema";
-import { TLoginResponse } from "./auth.type";
-import { TUser } from "../user/user.type";
+import type { TUser } from "@features/user";
+import {
+  loginSchema,
+  signInSchema,
+  authService,
+  type TLoginResponse,
+} from "@features/auth";
+// import * as authService from "./auth.service";
+// import { loginSchema, signInSchema } from "./auth.schema";
+// import { TLoginResponse } from "./auth.type";
 
 const authRouter = new Hono<TVariablesUsingAuthMiddelware>();
 

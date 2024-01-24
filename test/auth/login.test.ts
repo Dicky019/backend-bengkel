@@ -2,7 +2,7 @@ import { describe, test, expect } from "bun:test";
 import { User } from "@prisma/client";
 
 import { HttpStatus } from "@core/enum";
-import { TErrorResponse, TSuccessResponse } from "@core/types";
+import type { TErrorResponse, TSuccessResponse } from "@core/types";
 
 import getStatusName from "@utils/http-utils";
 import logger from "@utils/logger";

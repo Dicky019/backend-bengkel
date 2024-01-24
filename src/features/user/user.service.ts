@@ -5,14 +5,15 @@ import HTTPException from "@core/states/error";
 
 import pagination from "@utils/pagination";
 
-import * as userRepo from "@features/user/user.repository";
-import {
+import type {
   TCreateUserProps,
   TUpdateUserProps,
   TUserError,
   TValidationUser,
   TWhereUniqueUser,
-} from "@features/user/user.type";
+} from "@features/user";
+
+import { userRepo } from "@features/user";
 
 /**
  * Gets users based on optional find arguments.

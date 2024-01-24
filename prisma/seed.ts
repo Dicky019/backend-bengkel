@@ -1,7 +1,8 @@
 import { $Enums, PrismaClient } from "@prisma/client";
-import signinFaker from "@/faker/auth.faker";
-import userFaker from "@/faker/user.faker";
-import logger from "@/utils/logger";
+
+import signinFaker from "@fakers/auth";
+import userFaker from "@fakers/user";
+import logger from "@utils/logger";
 
 const prisma = new PrismaClient();
 

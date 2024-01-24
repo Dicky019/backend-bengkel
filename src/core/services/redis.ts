@@ -1,6 +1,7 @@
 import { Redis } from "@upstash/redis";
 import { Context } from "hono";
-import env from "@/utils/env";
+
+import env from "@utils/env";
 
 const redis = new Redis({
   url: env.REDIS_URL,

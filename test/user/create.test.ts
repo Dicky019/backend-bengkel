@@ -3,10 +3,10 @@ import { describe, test, expect } from "bun:test";
 
 import userFaker from "@fakers/user";
 import logger from "@utils/logger";
-import { TUser, TUserError } from "@features/user/user.type";
+import type { TUser, TUserError } from "@features/user";
 
 import { HttpStatus } from "@core/enum";
-import { TErrorResponse, TSuccessResponse } from "@core/types";
+import type { TErrorResponse, TSuccessResponse } from "@core/types";
 
 const baseUrl = "users";
 

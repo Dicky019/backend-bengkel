@@ -3,7 +3,7 @@ import { type MiddlewareHandler } from "hono";
 import { removeCache, get } from "@core/services";
 import { HttpStatus } from "@core/enum";
 
-import type { TUser } from "@features/user/user.type";
+import type { TUser } from "@features/user";
 
 import logger from "@utils/logger";
 import getStatusName from "@utils/http-utils";

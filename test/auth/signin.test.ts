@@ -4,10 +4,10 @@ import userFaker from "@fakers/user";
 import getStatusName from "@utils/http-utils";
 import logger from "@utils/logger";
 
-import { TErrorResponse, TSuccessResponse } from "@core/types";
+import type { TErrorResponse, TSuccessResponse } from "@core/types";
 import { HttpStatus } from "@core/enum";
 
-import { TUser, TUserError } from "@features/user/user.type";
+import type { TUser, TUserError } from "@features/user";
 
 import { UserProps, authUtil, fetchTest, userCheck } from "../test_utils";
 

@@ -1,10 +1,11 @@
 import { prisma } from "@core/db";
+
 import type {
   TWhereUniqueUser,
   TFindManyUser,
   TCreateUserProps,
   TUpdateUserProps,
-} from "./user.type";
+} from "@features/user";
 
 const selectUserWithoutPass = {
   id: true,

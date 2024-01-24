@@ -1,4 +1,4 @@
-import { TUser } from "@features/user/user.type";
+import type { TUser } from "@features/user";
 import { $Enums } from "@prisma/client";
 
 export type TVariablesUsingAuthMiddelware = {

@@ -1,8 +1,8 @@
 import { z } from "zod";
 
-import { TUser } from "@features/user/user.type";
+import type { TUser } from "@features/user";
 
-import { loginSchema, signInSchema } from "./auth.schema";
+import { loginSchema, signInSchema } from "@features/auth";
 
 export type TLoginProps = z.infer<typeof loginSchema>;
 export type TSigninProps = z.infer<typeof signInSchema>;

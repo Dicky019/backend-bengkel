@@ -15,8 +15,9 @@ import getStatusName from "@utils/http-utils";
 import logger from "@utils/logger";
 
 import { createUserSchema, updateUserSchema } from "@features/user/user.schema";
-import * as userService from "@features/user/user.service";
+
 import { TUser } from "@features/user/user.type";
+import { userService } from "@features/user";
 
 const userRouter = new Hono<TVariablesUsingAuthMiddelware>();
 

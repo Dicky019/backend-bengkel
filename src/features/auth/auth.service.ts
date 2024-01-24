@@ -1,16 +1,15 @@
-import * as userRepo from "@features/user/user.repository";
-import { validateUser, getUser } from "@features/user/user.service";
+import { userService, userRepo } from "@features/user";
 
 import { signJwtAccessToken } from "@core/services";
 import { HttpStatus } from "@core/enum";
 import HTTPException from "@core/states/error";
 
-import {
+import type {
   TAuthError,
   TCurentUserProps,
   TLoginProps,
   TSigninProps,
-} from "./auth.type";
+} from "@features/auth";
 
 /**
  * Signs in a user.
@@ -23,7 +22,7 @@ import {
 export const signin = async (signinProps: TSigninProps) => {
   const { password, ...userWithoutPassword } = signinProps;
 
-  await validateUser(userWithoutPassword);
+  await userService.validateUser(userWithoutPassword);
 
   const hashedPassword = await Bun.password.hash(password, {
     algorithm: "bcrypt",
@@ -97,7 +96,7 @@ export const login = async (loginProps: TLoginProps) => {
  * Throws errors if no token provided or invalid token.
  */
 export const currentUser = async ({ email, id }: TCurentUserProps) => {
-  const user = await getUser({ email, id });
+  const user = await userService.getUser({ email, id });
 
   return user;
 };

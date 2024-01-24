@@ -1,7 +1,7 @@
 import { Next, type Context } from "hono";
 
-import { TAuthError } from "@features/auth/auth.type";
-import { TUserError } from "@features/user/user.type";
+import type { TAuthError } from "@features/auth";
+import type { TUserError } from "@features/user";
 
 import { verifyJwt } from "@core/services/jwt";
 import HTTPException from "@core/states/error";

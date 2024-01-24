@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import { inspectRoutes } from "hono/dev";
 import { logger as log } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
-// import { HTTPException } from "hono/http-exception";
 
 import env from "@utils/env";
 import logger from "@utils/logger";
@@ -11,8 +10,8 @@ import getStatusName from "@utils/http-utils";
 import { HTTPException } from "@core/states";
 import { HttpStatus } from "@core/enum";
 
-import authRouter from "@features/auth/auth.controller";
-import userRouter from "@features/user/user.controller";
+import authRouter from "@features/auth";
+import userRouter from "@features/user";
 
 const app = new Hono();
 

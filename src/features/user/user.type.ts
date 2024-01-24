@@ -4,10 +4,7 @@ import { z } from "zod";
 import { Prisma } from "@core/db";
 import { idSchema } from "@core/schemas";
 
-import {
-  createUserSchema,
-  updateUserSchema,
-} from "@features/user/user.schema.ts";
+import { createUserSchema, updateUserSchema } from "@features/user";
 
 /**
  * Type alias for Prisma.UserWhereUniqueInput.

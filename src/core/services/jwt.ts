@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
-import { TAuthError } from "@features/auth/auth.type";
+
+import type { TAuthError } from "@features/auth";
 
 import { HTTPException } from "@core/states";
 import { HttpStatus } from "@core/enum";

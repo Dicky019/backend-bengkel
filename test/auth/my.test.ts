@@ -7,7 +7,7 @@ import logger from "@utils/logger";
 import { TErrorResponse, TSuccessResponse } from "@core/types";
 import { HttpStatus } from "@core/enum";
 
-import { TAuthError } from "@features/auth/auth.type";
+import type { TAuthError } from "@features/auth";
 
 import { authUtil, fetchTest, userCheck } from "../test_utils";
 

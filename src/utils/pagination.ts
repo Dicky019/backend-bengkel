@@ -1,6 +1,4 @@
-import { TQueryPage } from "@core/types";
-
-type IGetDataProps = { take: number; skip: number };
+import type { IGetDataPagination, TQueryPage } from "@core/types";
 
 const pagination = async <T>({
   getDataCount,
@@ -9,7 +7,7 @@ const pagination = async <T>({
   perPage,
 }: {
   getDataCount: () => Promise<number>;
-  getData: (getDataProps: IGetDataProps) => Promise<T[]>;
+  getData: (getDataProps: IGetDataPagination) => Promise<T[]>;
 } & TQueryPage) => {
   const skip = currentPage > 0 ? perPage * (currentPage - 1) : 0;
 

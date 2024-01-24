@@ -1,4 +1,4 @@
-import { TCodeError, TErrorResponse, TErrors } from "@core/types";
+import type { TCodeError, TErrorResponse, TErrors } from "@core/types";
 import getStatusName from "@utils/http-utils";
 
 export default class HTTPException<T> extends Error {
