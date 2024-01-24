@@ -1,22 +1,14 @@
-import { $Enums } from "@prisma/client";
 import jwt from "jsonwebtoken";
-import env from "~/utils/env";
-import logger from "~/utils/logger";
+import { TAuthError } from "@features/auth/auth.type";
+
+import { HTTPException } from "@core/states";
+import { HttpStatus } from "@core/enum";
+
+import env from "@utils/env";
 
 const DEFAULT_SIGN_OPTION: jwt.SignOptions = {
   expiresIn: 3 * 24 * 60 * 60, // 12 days
 };
-
-declare module "jsonwebtoken" {
-  interface JwtPayload {
-    id: string;
-    name: string;
-    email: string;
-    image: string | null;
-    nomorTelephone: string;
-    role: $Enums.Role;
-  }
-}
 
 export function signJwtAccessToken(
   payload: jwt.JwtPayload,
@@ -33,7 +25,19 @@ export function verifyJwt(token: string) {
     const decoded = jwt.verify(token, secretKey ?? "");
     return decoded as jwt.JwtPayload;
   } catch (error) {
-    logger.error(error);
+    if (error instanceof jwt.TokenExpiredError) {
+      throw new HTTPException<TAuthError>(HttpStatus.UNAUTHORIZED, {
+        errors: { token: ["Token expire"] },
+      });
+    }
+
+    if (error instanceof jwt.JsonWebTokenError) {
+      const { message } = error;
+      throw new HTTPException<TAuthError>(HttpStatus.UNAUTHORIZED, {
+        errors: { token: [message] },
+      });
+    }
+
     return null;
   }
 }

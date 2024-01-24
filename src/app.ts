@@ -2,14 +2,17 @@ import { Hono } from "hono";
 import { inspectRoutes } from "hono/dev";
 import { logger as log } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
-import { HTTPException } from "hono/http-exception";
+// import { HTTPException } from "hono/http-exception";
 
-import env from "~/utils/env";
-import logger from "~/utils/logger";
-import HttpStatus from "~/utils/http-utils";
+import env from "@utils/env";
+import logger from "@utils/logger";
+import getStatusName from "@utils/http-utils";
 
-import authRouter from "./features/auth/auth.controller";
-import userRouter from "./features/user/user.controller";
+import { HTTPException } from "@core/states";
+import { HttpStatus } from "@core/enum";
+
+import authRouter from "@features/auth/auth.controller";
+import userRouter from "@features/user/user.controller";
 
 const app = new Hono();
 
@@ -38,22 +41,16 @@ app.onError((err, c) => {
   // discovered errors
   if (err instanceof HTTPException) {
     logger.debug({ error: message });
+
     // Get the custom response
-    return c.json(
-      {
-        code: err.status,
-        status: "Server Error",
-        errors: [message],
-      },
-      err.status,
-    );
+    return c.json(err.getResponse(), err.code);
   }
   // unnoticed error
   logger.error({ error: err });
   return c.json(
     {
       code: HttpStatus.SERVER_ERROR,
-      status: "Server Error",
+      status: getStatusName(HttpStatus.SERVER_ERROR),
       errors: [message],
     },
     HttpStatus.SERVER_ERROR,
@@ -65,6 +62,11 @@ app.onError((err, c) => {
  * - /login
  * - /signin
  */
+app.get("/", (c) =>
+  c.json({
+    server: "online",
+  }),
+);
 app.route("/auth", authRouter);
 app.route("/users", userRouter);
 
@@ -80,11 +82,9 @@ if (process.env.NODE_ENV === "development") {
   logger.info(routes);
 }
 
-logger.info("server run in http://localhost:3000");
+logger.info(`server run in http://localhost:${env.PORT}`);
 
 Bun.serve({
   fetch: app.fetch,
   port: env.PORT,
 });
-
-export default app;

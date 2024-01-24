@@ -1,8 +1,8 @@
-import { TQueryPage } from '~/types/index.ts';
+import { TQueryPage } from "@core/types";
 
 type IGetDataProps = { take: number; skip: number };
 
- const  pagination = async <T>({
+const pagination = async <T>({
   getDataCount,
   getData,
   page: currentPage,
@@ -37,4 +37,4 @@ type IGetDataProps = { take: number; skip: number };
   return { data, meta };
 };
 
-export default pagination
+export default pagination;

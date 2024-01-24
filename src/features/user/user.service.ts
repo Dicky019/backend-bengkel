@@ -1,9 +1,18 @@
-import { HTTPException } from "hono/http-exception";
-import * as userRepo from "~/features/user/user.repository";
-import { TCreateUser, TUpdateUser, TWhereUniqueUser } from "./user.type";
-import { TQueryPage } from "~/types";
-import pagination from "~/utils/pagination";
-import HttpStatus from "~/utils/http-utils";
+// import { HTTPException } from "hono/http-exception";
+import { TQueryPage } from "@core/types";
+import { HttpStatus } from "@core/enum";
+import HTTPException from "@core/states/error";
+
+import pagination from "@utils/pagination";
+
+import * as userRepo from "@features/user/user.repository";
+import {
+  TCreateUserProps,
+  TUpdateUserProps,
+  TUserError,
+  TValidationUser,
+  TWhereUniqueUser,
+} from "@features/user/user.type";
 
 /**
  * Gets users based on optional find arguments.
@@ -31,44 +40,54 @@ export const getUser = async (where: TWhereUniqueUser) => {
   const user = await userRepo.getUserByUniq(where);
   if (!user) {
     // throw Error("User ini tidak ada");
-    throw new HTTPException(HttpStatus.NOT_FOUND, {
-      message: "User ini tidak ada",
+    throw new HTTPException<TUserError>(HttpStatus.NOT_FOUND, {
+      errors: { user: ["User ini tidak ada"] },
     });
   }
   return user;
 };
 
-export const validateCreateUser = async (create: TCreateUser) => {
-  const [checkEmail, checkNoTelephone] = await Promise.all([
+export const validateUser = async (user: TValidationUser) => {
+  const [getUserByEmail, getUserByNoTelephone] = await Promise.all([
     userRepo.getUserByUniq({
-      email: create.email,
+      email: user.email,
     }),
     userRepo.getUserByUniq({
-      nomorTelephone: create.nomorTelephone,
+      nomorTelephone: user.nomorTelephone,
     }),
   ]);
 
-  if (checkEmail && checkNoTelephone) {
-    throw new HTTPException(HttpStatus.BAD_REQUEST, {
-      message: "Email dan No.telephone sudah ada",
-    });
+  const isUpdatedUser = user.id !== undefined;
+  const isElseUser =
+    user.id === getUserByEmail?.id && user.id === getUserByNoTelephone?.id;
+
+  if (isUpdatedUser && isElseUser) {
+    return;
   }
 
-  if (checkEmail) {
-    throw new HTTPException(HttpStatus.BAD_REQUEST, {
-      message: "Email sudah ada",
-    });
+  const isEmailAndNoTelephoneEmpty = !getUserByEmail && !getUserByNoTelephone;
+
+  if (isEmailAndNoTelephoneEmpty) {
+    return;
   }
 
-  if (checkNoTelephone) {
-    throw new HTTPException(HttpStatus.BAD_REQUEST, {
-      message: "No.telephone sudah ada",
-    });
+  const errors: TUserError = {};
+
+  if (getUserByEmail) {
+    errors.email = ["Email sudah ada"];
   }
+
+  if (getUserByNoTelephone) {
+    errors.nomorTelephone = ["No.telephone sudah ada"];
+  }
+
+  throw new HTTPException<TUserError>(HttpStatus.BAD_REQUEST, {
+    errors,
+  });
 };
 
-export const createUser = async (create: TCreateUser) => {
-  await validateCreateUser(create);
+export const createUser = async (create: TCreateUserProps) => {
+  await validateUser(create);
   return userRepo.createUser(create);
 };
 
@@ -78,8 +97,11 @@ export const createUser = async (create: TCreateUser) => {
  * Gets the existing user by ID first to validate it exists.
  * Then delegates to the userRepo to perform the update in the database.
  */
-export const updateUser = async (updateUserProps: TUpdateUser) => {
-  await getUser({ id: updateUserProps.id });
+export const updateUser = async (updateUserProps: TUpdateUserProps) => {
+  const user = await getUser({
+    id: updateUserProps.id,
+  });
+  await validateUser(user);
   return userRepo.updateUser(updateUserProps);
 };
 

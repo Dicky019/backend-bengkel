@@ -1,18 +1,24 @@
 import { Hono } from "hono";
 
-import HttpStatus from "~/utils/http-utils";
-import logger from "~/utils/logger";
+import {
+  validatorSchemaMiddleware,
+  cacheMiddleware,
+  authMiddleware,
+} from "@core/middlewares";
+import { idSchema, queryPageSchema } from "@core/schemas";
+import type { TVariablesUsingAuthMiddelware } from "@core/types";
+import { setCache } from "@core/services";
+import { HttpStatusSuccess } from "@core/enum";
+import HTTPSuccess from "@core/states/success";
 
-import * as userService from "./user.service";
-import { createUserSchema, updateUserSchema } from "./user.schema";
-import { idSchema, queryPageSchema } from "~/schemas";
-import { setCache } from "~/services/redis";
-import validatorSchemaMiddleware from "~/middlewares/validator";
-import cacheMiddleware from "~/middlewares/cache";
-import { authMiddleware } from "~/middlewares/auth";
-import type { TVariables } from "~/types";
+import getStatusName from "@utils/http-utils";
+import logger from "@utils/logger";
 
-const userRouter = new Hono<{ Variables: TVariables }>();
+import { createUserSchema, updateUserSchema } from "@features/user/user.schema";
+import * as userService from "@features/user/user.service";
+import { TUser } from "@features/user/user.type";
+
+const userRouter = new Hono<TVariablesUsingAuthMiddelware>();
 
 /**
  * Middleware to check if data is cached in Redis
@@ -20,29 +26,28 @@ const userRouter = new Hono<{ Variables: TVariables }>();
  * Otherwise call next() to continue request processing
  */
 userRouter.use("*", authMiddleware);
+userRouter.use("*", (...c) => authMiddleware(...c, ["admin", "motir"]));
 userRouter.use("*", cacheMiddleware);
 
-export const getUsersRouter = userRouter.get(
+userRouter.get(
   "/",
-  // (c, next) => authAdminMiddleware("admin", c, next),
+  // (c, next) => authAllowedRolesMiddleware("admin", c, next),
   async (c) => {
     const query = c.req.query();
 
     const queryPage = queryPageSchema.parse(query);
-    const users = await userService.getUsers(queryPage);
-    await setCache(c, users);
+    const { data, meta } = await userService.getUsers(queryPage);
+    await setCache(c, { data, meta });
 
-    logger.debug(users);
+    logger.debug({ data, meta });
 
-    return c.json({
-      code: HttpStatus.OK,
-      status: "Ok",
-      ...users,
-    });
+    const res = new HTTPSuccess<TUser[]>(c, { data, meta });
+
+    return res.getResponse();
   },
 );
 
-export const getUserByIdRouter = userRouter.get(
+userRouter.get(
   "/:id",
   validatorSchemaMiddleware("param", idSchema),
   async (c) => {
@@ -52,15 +57,14 @@ export const getUserByIdRouter = userRouter.get(
 
     logger.debug(user);
 
-    return c.json({
-      code: HttpStatus.OK,
-      status: "Ok",
+    const res = new HTTPSuccess<TUser>(c, {
       data: user,
     });
+
+    return res.getResponse();
   },
 );
-
-export const createUserRouter = userRouter.post(
+userRouter.post(
   "/",
   validatorSchemaMiddleware("json", createUserSchema),
   async (c) => {
@@ -69,15 +73,16 @@ export const createUserRouter = userRouter.post(
 
     logger.debug(user);
 
-    return c.json({
-      code: HttpStatus.OK,
-      status: "Ok",
+    const res = new HTTPSuccess<TUser>(c, {
+      code: HttpStatusSuccess.CREATED,
       data: user,
     });
+
+    return res.getResponse();
   },
 );
 
-export const updateUserRouter = userRouter.put(
+userRouter.put(
   "/:id",
   validatorSchemaMiddleware("json", updateUserSchema),
   validatorSchemaMiddleware("param", idSchema),
@@ -92,14 +97,14 @@ export const updateUserRouter = userRouter.put(
     logger.debug(user);
 
     return c.json({
-      code: HttpStatus.OK,
-      status: "Ok",
+      code: HttpStatusSuccess.OK,
+      status: getStatusName(HttpStatusSuccess.OK),
       data: user,
     });
   },
 );
 
-export const deleteUserRouter = userRouter.delete(
+userRouter.delete(
   "/:id",
   validatorSchemaMiddleware("param", idSchema),
   async (c) => {
@@ -107,14 +112,12 @@ export const deleteUserRouter = userRouter.delete(
     const user = await userService.deleteUser({ id });
     logger.debug(user);
 
-    return c.json({
-      code: HttpStatus.OK,
-      status: "Ok",
+    const res = new HTTPSuccess<TUser>(c, {
       data: user,
     });
+
+    return res.getResponse();
   },
 );
-
-export const ts = userRouter;
 
 export default userRouter;

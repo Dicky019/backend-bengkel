@@ -1,9 +1,9 @@
-import { prisma } from "~/db";
+import { prisma } from "@core/db";
 import type {
   TWhereUniqueUser,
   TFindManyUser,
-  TCreateUser,
-  TUpdateUser,
+  TCreateUserProps,
+  TUpdateUserProps,
 } from "./user.type";
 
 const selectUserWithoutPass = {
@@ -58,7 +58,7 @@ export const getUserByUniq = (where: TWhereUniqueUser) => {
  *
  * @param data - The user data to insert into the database.
  */
-export const createUser = (data: TCreateUser) => {
+export const createUser = (data: TCreateUserProps) => {
   const user = prisma.user.create({
     data,
   });
@@ -71,7 +71,7 @@ export const createUser = (data: TCreateUser) => {
  *
  * @param data - The updated user data. Must include the user's id to identify the record to update.
  */
-export const updateUser = (data: TUpdateUser) => {
+export const updateUser = (data: TUpdateUserProps) => {
   const user = prisma.user.update({
     data,
     where: { id: data.id },

@@ -1,12 +1,15 @@
-const HttpStatus = {
-  OK: 200,
-  CREATED: 201,
-  BAD_REQUEST: 400,
-  UNAUTHORIZED: 401,
-  FORBIDDEN: 403,
-  NOT_FOUND: 404,
-  CONFLICT: 409,
-  SERVER_ERROR: 500,
-} as const;
+import { THttpStatusValue } from "@core/types/state";
+import { HttpStatus } from "@core/enum";
+import logger from "./logger";
 
-export default HttpStatus;
+// type HttpStatusName = keyof typeof HttpStatus;
+
+function getStatusName(status: THttpStatusValue): string {
+  const statusName = (
+    Object.keys(HttpStatus) as Array<keyof typeof HttpStatus>
+  ).find((key) => HttpStatus[key] === status);
+  logger.info(statusName);
+  return (statusName ?? "-").replaceAll("_", " ");
+}
+
+export default getStatusName;

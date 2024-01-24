@@ -16,10 +16,14 @@
     "allowJs": true,
     "baseUrl": ".",
     "types": [
-      "bun-types" // add Bun global
+      "bun-types", // add Bun global
     ],
     "paths": {
-      "~/*": ["./src/*"]
-    }
-  }
+      // "@/*": ["./src/*"],
+      "@core/*": ["./src/core/*"],
+      "@fakers/*": ["./src/fakers/*"],
+      "@features/*": ["./src/features/*"],
+      "@utils/*": ["./src/utils/*"],
+    },
+  },
 }

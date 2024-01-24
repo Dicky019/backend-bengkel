@@ -2,8 +2,10 @@ import type { ValidationTargets } from "hono/types";
 import { type ZodRawShape, z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 
-import HttpStatus from "~/utils/http-utils";
-import logger from "~/utils/logger";
+import { HttpStatus } from "@core/enum";
+import { HTTPException } from "@core/states";
+
+import logger from "@utils/logger";
 
 const validatorSchemaMiddleware = <
   T extends ZodRawShape,
@@ -12,19 +14,13 @@ const validatorSchemaMiddleware = <
   target: Target,
   schema: z.ZodObject<T>,
 ) =>
-  // eslint-disable-next-line consistent-return
-  zValidator(target, schema, (result, c) => {
+  zValidator(target, schema, (result) => {
     if (!result.success) {
       logger.error(result.error.formErrors);
-
-      return c.json(
-        {
-          code: HttpStatus.BAD_REQUEST,
-          status: "Bad Request",
-          errors: result.error.formErrors.fieldErrors,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      logger.error(result.error.errors);
+      throw new HTTPException(HttpStatus.BAD_REQUEST, {
+        errors: result.error.formErrors.fieldErrors,
+      });
     }
   });
 

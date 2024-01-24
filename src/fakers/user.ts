@@ -1,10 +1,11 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { faker } from "@faker-js/faker";
-import { TUpdateUser } from "./user.type";
+import { z } from "zod";
+import { updateUserSchema } from "@features/user/user.schema";
 
-export const userfaker = (
-  user: Omit<TUpdateUser, "id"> | undefined = undefined,
-) => {
+type UserProps = z.infer<typeof updateUserSchema>;
+
+const userFaker = (user: UserProps | undefined = undefined) => {
   const numberPhone = faker.helpers.fromRegExp(
     "+62 [0-9]{3}-[0-9]{3}-[0-9]{4}",
   ); // +62 813-444-5555,
@@ -22,4 +23,4 @@ export const userfaker = (
   } as const;
 };
 
-export default userfaker;
+export default userFaker;

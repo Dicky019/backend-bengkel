@@ -1,14 +1,15 @@
 import { Hono } from "hono";
-import { setCookie } from "hono/cookie";
 
-import HttpStatus from "~/utils/http-utils";
+import { validatorSchemaMiddleware, authMiddleware } from "@core/middlewares";
+import { TVariablesUsingAuthMiddelware } from "@core/types";
+import HTTPSuccess from "@core/states/success";
 
 import * as authService from "./auth.service";
 import { loginSchema, signInSchema } from "./auth.schema";
-import validatorSchemaMiddleware from "~/middlewares/validator";
-import { authMiddleware } from "~/middlewares/auth";
+import { TLoginResponse } from "./auth.type";
+import { TUser } from "../user/user.type";
 
-const authRouter = new Hono();
+const authRouter = new Hono<TVariablesUsingAuthMiddelware>();
 
 /**
  * @route Post /auth/my
@@ -22,18 +23,12 @@ authRouter.post(
     const login = c.req.valid("json");
 
     const { userWithoutPassword: user, token } = await authService.login(login);
-    setCookie(c, "token", token, {
-      maxAge: 3 * 24 * 60 * 60,
+
+    const res = new HTTPSuccess<TLoginResponse>(c, {
+      data: { user, token },
     });
 
-    return c.json({
-      code: HttpStatus.OK,
-      status: "Ok",
-      data: {
-        user,
-        token,
-      },
-    });
+    return res.getResponse();
   },
 );
 
@@ -48,11 +43,12 @@ authRouter.post(
   async (c) => {
     const user = c.req.valid("json");
     const newUser = await authService.signin(user);
-    return c.json({
-      code: HttpStatus.OK,
-      status: "Ok",
+
+    const res = new HTTPSuccess<TUser>(c, {
       data: newUser,
     });
+
+    return res.getResponse();
   },
 );
 
@@ -65,11 +61,12 @@ authRouter.get("/my", authMiddleware, async (c) => {
   const { userData } = c.var;
 
   const user = await authService.currentUser(userData);
-  return c.json({
-    code: HttpStatus.OK,
-    status: "Ok",
+
+  const res = new HTTPSuccess<TUser>(c, {
     data: user,
   });
+
+  return res.getResponse();
 });
 
 export default authRouter;

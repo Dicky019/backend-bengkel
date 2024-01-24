@@ -1,10 +1,16 @@
-import { HTTPException } from "hono/http-exception";
-import * as userRepo from "~/features/user/user.repository";
-import { TLoginProps, TSigninProps } from "./auth.type";
-import { signJwtAccessToken } from "~/services/jwt";
-import { TUser } from "../user/user.type";
-import HttpStatus from "~/utils/http-utils";
-import { validateCreateUser } from "../user/user.service";
+import * as userRepo from "@features/user/user.repository";
+import { validateUser, getUser } from "@features/user/user.service";
+
+import { signJwtAccessToken } from "@core/services";
+import { HttpStatus } from "@core/enum";
+import HTTPException from "@core/states/error";
+
+import {
+  TAuthError,
+  TCurentUserProps,
+  TLoginProps,
+  TSigninProps,
+} from "./auth.type";
 
 /**
  * Signs in a user.
@@ -17,7 +23,7 @@ import { validateCreateUser } from "../user/user.service";
 export const signin = async (signinProps: TSigninProps) => {
   const { password, ...userWithoutPassword } = signinProps;
 
-  await validateCreateUser(userWithoutPassword);
+  await validateUser(userWithoutPassword);
 
   const hashedPassword = await Bun.password.hash(password, {
     algorithm: "bcrypt",
@@ -45,14 +51,19 @@ export const login = async (loginProps: TLoginProps) => {
   });
 
   if (!user) {
-    throw new HTTPException(HttpStatus.NOT_FOUND, {
-      message: "Email anda salah",
+    throw new HTTPException<TAuthError>(HttpStatus.NOT_FOUND, {
+      errors: {
+        email: ["Email tidak ada"],
+      },
     });
   }
 
   if (!user.password) {
-    throw new HTTPException(HttpStatus.CONFLICT, {
-      message: "Password anda belum diset",
+    throw new HTTPException<TAuthError>(HttpStatus.CONFLICT, {
+      // message: "Password anda belum diset",
+      errors: {
+        password: ["Password anda belum diset"],
+      },
     });
   }
 
@@ -64,8 +75,11 @@ export const login = async (loginProps: TLoginProps) => {
   );
 
   if (!isPasswordValid) {
-    throw new HTTPException(HttpStatus.BAD_REQUEST, {
-      message: "Password anda salah",
+    throw new HTTPException<TAuthError>(HttpStatus.BAD_REQUEST, {
+      // message: "Password anda salah",
+      errors: {
+        password: ["Password anda salah"],
+      },
     });
   }
 
@@ -82,20 +96,8 @@ export const login = async (loginProps: TLoginProps) => {
  *
  * Throws errors if no token provided or invalid token.
  */
-export const currentUser = async ({
-  id,
-  email,
-}: {
-  id: string;
-  email: string;
-}) => {
-  const user = await userRepo.getUserByUniq({ id, email });
+export const currentUser = async ({ email, id }: TCurentUserProps) => {
+  const user = await getUser({ email, id });
 
-  if (!user) {
-    throw new HTTPException(HttpStatus.NOT_FOUND, {
-      message: "User ini tidak ada",
-    });
-  }
-
-  return user as TUser;
+  return user;
 };

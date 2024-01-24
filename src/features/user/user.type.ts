@@ -1,8 +1,13 @@
 import { User } from "@prisma/client";
 import { z } from "zod";
-import { Prisma } from "~/db/index.ts";
-import { createUserSchema, updateUserSchema } from "./user.schema.ts";
-import { idSchema } from "~/schemas";
+
+import { Prisma } from "@core/db";
+import { idSchema } from "@core/schemas";
+
+import {
+  createUserSchema,
+  updateUserSchema,
+} from "@features/user/user.schema.ts";
 
 /**
  * Type alias for Prisma.UserWhereUniqueInput.
@@ -23,7 +28,7 @@ export type TFindManyUser = Prisma.UserFindManyArgs | undefined;
  * than set during user creation.
  */
 
-export type TCreateUser = z.infer<typeof createUserSchema>;
+export type TCreateUserProps = z.infer<typeof createUserSchema>;
 
 /**
  * Defines the shape of the TUserUpdateInput type, which is the
@@ -34,7 +39,9 @@ export type TCreateUser = z.infer<typeof createUserSchema>;
  * as required.
  */
 
-export type TUpdateUser = z.infer<typeof idSchema & typeof updateUserSchema>;
+export type TUpdateUserProps = z.infer<
+  typeof idSchema & typeof updateUserSchema
+>;
 
 /**
  * Omits the `password` property from the `User` type.
@@ -42,3 +49,17 @@ export type TUpdateUser = z.infer<typeof idSchema & typeof updateUserSchema>;
  */
 
 export type TUser = Omit<User, "password">;
+
+export type TUserError = {
+  user?: string[];
+  email?: string[];
+  password?: string[];
+  nomorTelephone?: string[];
+};
+
+export type TValidationUser = {
+  id?: string;
+  email: string;
+  nomorTelephone: string;
+  name: string;
+};
