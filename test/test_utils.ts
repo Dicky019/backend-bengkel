@@ -48,7 +48,7 @@ export const fetchTest = async (
   };
 
   if (token) {
-    headers.authorization = `Bearer ${token}`;
+    headers.Authorization = `Bearer ${token}`;
   }
 
   const baseUrl = `${env.APP_URL}:${env.PORT}`;

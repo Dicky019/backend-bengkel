@@ -12,8 +12,11 @@ import { HttpStatus } from "@core/enum";
 
 import authRouter from "@features/auth";
 import userRouter from "@features/user";
+import { cors } from "hono/cors";
 
 const app = new Hono();
+
+app.use("*", cors());
 
 /**
  * Headers secure

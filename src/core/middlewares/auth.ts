@@ -12,7 +12,7 @@ import type {
 import { HttpStatus } from "@core/enum";
 
 const authCheck = (c: Context<TVariablesUsingAuthMiddelware>) => {
-  const authorization = c.req.header("authorization");
+  const authorization = c.req.header("Authorization");
 
   //   logger.info("here: " + authorization);
 

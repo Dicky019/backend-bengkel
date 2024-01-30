@@ -5,12 +5,10 @@ import { TVariablesUsingAuthMiddelware } from "@core/types";
 import HTTPSuccess from "@core/states/success";
 
 import type { TUser } from "@features/user";
-import {
-  loginSchema,
-  signInSchema,
-  authService,
-  type TLoginResponse,
-} from "@features/auth";
+import { loginSchema, signInSchema } from "@features/auth/auth.schema";
+
+import { type TLoginResponse, authService } from "@features/auth";
+// import * as authService from "@features/auth/auth.service";
 // import * as authService from "./auth.service";
 // import { loginSchema, signInSchema } from "./auth.schema";
 // import { TLoginResponse } from "./auth.type";

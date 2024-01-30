@@ -9,7 +9,7 @@ import type {
   TCurentUserProps,
   TLoginProps,
   TSigninProps,
-} from "@features/auth";
+} from "@features/auth/auth.type";
 
 /**
  * Signs in a user.

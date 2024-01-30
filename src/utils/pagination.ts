@@ -1,4 +1,4 @@
-import type { IGetDataPagination, TQueryPage } from "@core/types";
+import type { IGetDataPagination, TMeta, TQueryPage } from "@core/types";
 
 const pagination = async <T>({
   getDataCount,
@@ -23,7 +23,7 @@ const pagination = async <T>({
   const prev = currentPage > 1 ? currentPage - 1 : null;
   const next = currentPage < lastPage ? currentPage + 1 : null;
 
-  const meta = {
+  const meta: TMeta = {
     perPage,
     currentPage,
     lastPage,
