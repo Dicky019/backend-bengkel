@@ -14,7 +14,7 @@ import authRouter from "@features/auth";
 import userRouter from "@features/user";
 import { cors } from "hono/cors";
 
-const app = new Hono().basePath("/api/");
+const app = new Hono().basePath("/api");
 
 app.use("*", cors());
 

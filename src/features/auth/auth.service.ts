@@ -10,7 +10,7 @@ import type {
   TLoginProps,
   TSigninProps,
 } from "@features/auth/auth.type";
-import { JwtPayload } from "jsonwebtoken";
+import type { JwtPayload } from "jsonwebtoken";
 import { google } from "googleapis";
 import env from "@utils/env";
 
@@ -98,8 +98,8 @@ export const login = async (loginProps: TLoginProps) => {
  *
  * Throws errors if no token provided or invalid token.
  */
-export const currentUser = async ({ email, id }: TCurentUserProps) => {
-  const user = await userService.getUser({ email, id });
+export const currentUser = async (currentUserProps: TCurentUserProps) => {
+  const user = await userService.getUser(currentUserProps);
 
   return user;
 };
@@ -144,7 +144,7 @@ export const googleCallback = async (
 
   const { data } = await oauth2.userinfo.get();
 
-  if (!data.email || !data.name || !data.picture) {
+  if (!data.email || !data.name) {
     throw new HTTPException<TAuthError>(HttpStatus.CONFLICT, {
       errors: {
         auth: ["Ada Yang salah"],
@@ -160,7 +160,7 @@ export const googleCallback = async (
       name: data.name,
       nomorTelephone: "-",
       role,
-      image: data.picture,
+      image: data.picture !== null ? data.picture : undefined,
     });
   }
 
