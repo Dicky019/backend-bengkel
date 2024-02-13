@@ -10,6 +10,9 @@ import type {
   TLoginProps,
   TSigninProps,
 } from "@features/auth/auth.type";
+import { JwtPayload } from "jsonwebtoken";
+import { google } from "googleapis";
+import env from "@utils/env";
 
 /**
  * Signs in a user.
@@ -99,4 +102,69 @@ export const currentUser = async ({ email, id }: TCurentUserProps) => {
   const user = await userService.getUser({ email, id });
 
   return user;
+};
+
+export const refreshTokenUser = async (token: JwtPayload) => {
+  const newToken = signJwtAccessToken(token);
+
+  return newToken;
+};
+
+const oauth2Client = new google.auth.OAuth2(
+  env.GOOGLE_CLIENT_ID,
+  env.GOOGLE_CLIENT_SECRET,
+  "http://localhost:3000/api/auth/callback/google",
+);
+
+const scopes = [
+  "https://www.googleapis.com/auth/userinfo.email",
+  "https://www.googleapis.com/auth/userinfo.profile",
+];
+
+const authorizationUrl = oauth2Client.generateAuthUrl({
+  access_type: "offline",
+  scope: scopes,
+  include_granted_scopes: true,
+});
+
+export const googleAuth = () => authorizationUrl;
+
+export const googleCallback = async (
+  code: string,
+  role: "pengendara" | "motir",
+) => {
+  const { tokens } = await oauth2Client.getToken(code);
+
+  oauth2Client.setCredentials(tokens);
+
+  const oauth2 = google.oauth2({
+    auth: oauth2Client,
+    version: "v2",
+  });
+
+  const { data } = await oauth2.userinfo.get();
+
+  if (!data.email || !data.name || !data.picture) {
+    throw new HTTPException<TAuthError>(HttpStatus.CONFLICT, {
+      errors: {
+        auth: ["Ada Yang salah"],
+      },
+    });
+  }
+
+  let user = await userRepo.getUserByUniq({ email: data.email });
+
+  if (!user) {
+    user = await userService.createUser({
+      email: data.email,
+      name: data.name,
+      nomorTelephone: "-",
+      role,
+      image: data.picture,
+    });
+  }
+
+  const token = signJwtAccessToken(user);
+
+  return { token, user };
 };

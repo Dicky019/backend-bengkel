@@ -12,14 +12,15 @@ const env = createEnv({
     REDIS_URL: z.string().url(),
     // KINDE AUTH
     AUTH_SECRET: z.string().min(16),
-    // TOKEN_ADMIN: z.string().min(16),
+    GOOGLE_CLIENT_ID: z.string(),
+    GOOGLE_CLIENT_SECRET: z.string(),
     // TOKEN_MOTIR: z.string().min(16),
     // TOKEN_PENGENDARA: z.string().min(16),
   },
-  clientPrefix: "PUBLIC_",
-  client: {
-    // PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1),
-  },
+  // clientPrefix: "PUBLIC_",
+  // client: {
+  //   // PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1),
+  // },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
 });

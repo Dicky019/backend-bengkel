@@ -1,19 +1,12 @@
-import type { TUser } from "@features/user";
+import { TUser } from "@features/user";
 import { $Enums } from "@prisma/client";
 
 export type TVariablesUsingAuthMiddelware = {
-  Variables: { userData: Omit<TUser, "createdAt" | "updatedAt"> };
+  Variables: { userData: TUser };
 };
 
 declare module "jsonwebtoken" {
-  interface JwtPayload {
-    id: string;
-    name: string;
-    email: string;
-    image: string | null;
-    nomorTelephone: string;
-    role: $Enums.Role;
-  }
+  interface JwtPayload extends TUser {}
 }
 export type TAuthMiddleware = $Enums.Role[] | undefined;
 

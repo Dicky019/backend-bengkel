@@ -1,7 +1,7 @@
 import { Next, type Context } from "hono";
 
 import type { TAuthError } from "@features/auth";
-import type { TUserError } from "@features/user";
+import { type TUserError } from "@features/user";
 
 import { verifyJwt } from "@core/services/jwt";
 import HTTPException from "@core/states/error";
@@ -37,7 +37,7 @@ const authCheck = (c: Context<TVariablesUsingAuthMiddelware>) => {
     });
   }
 
-  c.set("userData", userData);
+  c.set("userData", { ...userData });
 };
 
 const authMiddleware = async (

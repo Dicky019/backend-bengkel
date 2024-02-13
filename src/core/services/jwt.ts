@@ -8,7 +8,7 @@ import { HttpStatus } from "@core/enum";
 import env from "@utils/env";
 
 const DEFAULT_SIGN_OPTION: jwt.SignOptions = {
-  expiresIn: 3 * 24 * 60 * 60, // 12 days
+  expiresIn: 7 * 24 * 60 * 60, // 7 days
 };
 
 export function signJwtAccessToken(
@@ -16,7 +16,18 @@ export function signJwtAccessToken(
   options: jwt.SignOptions = DEFAULT_SIGN_OPTION,
 ) {
   const secretKey = env.AUTH_SECRET;
-  const token = jwt.sign(payload, secretKey ?? "", options);
+
+  const data = {
+    id: payload.id,
+    name: payload.name,
+    email: payload.email,
+    nomorTelephone: payload.nomorTelephone,
+    role: payload.role,
+    image: payload.image,
+    createdAt: payload.createdAt,
+    updatedAt: payload.updatedAt,
+  };
+  const token = jwt.sign(data, secretKey ?? "", options);
   return token;
 }
 

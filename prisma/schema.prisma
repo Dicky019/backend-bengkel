@@ -21,7 +21,7 @@ model User {
   name           String
   email          String   @unique
   password       String?
-  nomorTelephone String   @unique
+  nomorTelephone String?  @unique
   role           Role
   image          String?
   createdAt      DateTime @default(now())

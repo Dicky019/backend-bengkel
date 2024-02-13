@@ -24,8 +24,7 @@ const userRouter = new Hono<TVariablesUsingAuthMiddelware>();
  * If cached data exists, return it
  * Otherwise call next() to continue request processing
  */
-userRouter.use("*", authMiddleware);
-userRouter.use("*", (...c) => authMiddleware(...c, ["admin", "motir"]));
+userRouter.use("*", (c, next) => authMiddleware(c, next, ["admin", "motir"]));
 userRouter.use("*", cacheMiddleware);
 
 userRouter.get(
@@ -35,7 +34,9 @@ userRouter.get(
     const query = c.req.query();
 
     const queryPage = queryPageSchema.parse(query);
+
     const { data, meta } = await userService.getUsers(queryPage);
+
     await setCache(c, { data, meta });
 
     logger.debug({ data, meta });
@@ -51,7 +52,9 @@ userRouter.get(
   validatorSchemaMiddleware("param", idSchema),
   async (c) => {
     const { id } = c.req.valid("param");
+
     const user = await userService.getUser({ id });
+
     await setCache(c, { data: user });
 
     logger.debug(user);
@@ -68,6 +71,7 @@ userRouter.post(
   validatorSchemaMiddleware("json", createUserSchema),
   async (c) => {
     const data = c.req.valid("json");
+
     const user = await userService.createUser(data);
 
     logger.debug(user);
@@ -87,7 +91,9 @@ userRouter.put(
   validatorSchemaMiddleware("param", idSchema),
   async (c) => {
     const userWithoutId = c.req.valid("json");
+
     const { id } = c.req.valid("param");
+
     const user = await userService.updateUser({
       id,
       ...userWithoutId,
@@ -108,7 +114,9 @@ userRouter.delete(
   validatorSchemaMiddleware("param", idSchema),
   async (c) => {
     const { id } = c.req.valid("param");
+
     const user = await userService.deleteUser({ id });
+
     logger.debug(user);
 
     const res = new HTTPSuccess<TUser>(c, {

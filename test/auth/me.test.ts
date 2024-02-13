@@ -11,7 +11,7 @@ import type { TAuthError } from "@features/auth";
 
 import { authUtil, fetchTest, userCheck } from "../test_utils";
 
-const baseUrl = "auth/my";
+const baseUrl = "auth/me";
 
 const TokenExpired =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImIyNWExMDdkLWE0MTItNGI0ZS1hMjdkLTNmOTcxODVkMDU0NiIsIm5hbWUiOiJMdWNpbGxlIFR1cm5lciIsImVtYWlsIjoiR3V5X0Nvbm5lbGx5NjhAaG90bWFpbC5jb20iLCJub21vclRlbGVwaG9uZSI6Iis2MiAyMTAtNDcwLTg3NzUiLCJyb2xlIjoiYWRtaW4iLCJpbWFnZSI6bnVsbCwiY3JlYXRlZEF0IjoiMjAyNC0wMS0xNVQwNTowNjoxNi43OTZaIiwidXBkYXRlZEF0IjoiMjAyNC0wMS0xNVQwNTowNjoxNi43OTZaIiwiaWF0IjoxNzA1NjMwMjQ0LCJleHAiOjE3MDU4ODk0NDR9.M7LtC6xsWAHdYgNHI0fRVGmh7kLn9huF4xKJTjLoGqQ";

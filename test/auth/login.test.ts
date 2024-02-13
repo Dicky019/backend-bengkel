@@ -1,11 +1,13 @@
 import { describe, test, expect } from "bun:test";
-import { User } from "@prisma/client";
 
 import { HttpStatus } from "@core/enum";
 import type { TErrorResponse, TSuccessResponse } from "@core/types";
 
 import getStatusName from "@utils/http-utils";
 import logger from "@utils/logger";
+
+import { TLoginResponse } from "@features/auth";
+import { TUser } from "@features/user";
 
 import { authUtil, fetchTest, userCheck } from "../test_utils";
 
@@ -30,8 +32,11 @@ describe("AUTH", () => {
       const { user } = authUtil;
       const { code, data, status } = (await postLogin(
         user,
-      )) as TSuccessResponse<User>;
+      )) as TSuccessResponse<TLoginResponse>;
+
       logger.info(data);
+
+      authUtil.token = data.token;
 
       expect(code).toEqual(HttpStatus.OK);
       expect(status).toEqual(getStatusName(HttpStatus.OK));
@@ -53,7 +58,7 @@ describe("AUTH", () => {
       const { code, errors, status } = (await postLogin({
         email: "Guy_Connelly68@hotmail.co",
         password: "password123",
-      })) as TErrorResponse<User>;
+      })) as TErrorResponse<TUser>;
       logger.info(errors);
 
       expect(code).toEqual(HttpStatus.NOT_FOUND);
@@ -67,7 +72,7 @@ describe("AUTH", () => {
       const { code, errors, status } = (await postLogin({
         email: "Guy_Connelly68@hotmail.com",
         password: "password123",
-      })) as TErrorResponse<User>;
+      })) as TErrorResponse<TUser>;
       logger.info(errors);
 
       expect(code).toEqual(HttpStatus.BAD_REQUEST);
@@ -86,7 +91,7 @@ describe("AUTH", () => {
       const { code, errors, status } = (await postLogin({
         email: "",
         password: "",
-      })) as TErrorResponse<User>;
+      })) as TErrorResponse<TUser>;
       logger.info(errors);
 
       expect(code).toEqual(HttpStatus.BAD_REQUEST);
@@ -98,7 +103,7 @@ describe("AUTH", () => {
       const { code, errors, status } = (await postLogin({
         email: "",
         password: "password123",
-      })) as TErrorResponse<User>;
+      })) as TErrorResponse<TUser>;
 
       expect(code).toEqual(HttpStatus.BAD_REQUEST);
       expect(status).toEqual(getStatusName(HttpStatus.BAD_REQUEST));
@@ -111,7 +116,7 @@ describe("AUTH", () => {
       const { code, errors, status } = (await postLogin({
         email: "Guy_Connelly68@hotmail.com",
         password: "",
-      })) as TErrorResponse<User>;
+      })) as TErrorResponse<TUser>;
 
       expect(code).toEqual(HttpStatus.BAD_REQUEST);
       expect(status).toEqual(getStatusName(HttpStatus.BAD_REQUEST));
